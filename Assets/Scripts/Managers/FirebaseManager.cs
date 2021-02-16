@@ -9,6 +9,7 @@ using UnityEngine;
 public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 	public FirebaseDatabase Database { get; private set; }
 	public FirebaseAuth Auth { get; private set; }
+	public FirebaseUser User => Auth.CurrentUser;
 	public DatabaseReference UserReference { get; private set; }
 	public bool Initialized { get; private set; }
 
@@ -36,6 +37,27 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 
 		Initialized = true;
 		initTask = null;
+	}
+
+	public async Task RegisterUser(string email, string password) {
+		if (!Initialized)
+			await initTask;
+
+		await Auth.CreateUserWithEmailAndPasswordAsync(email, password);
+	}
+
+	public async Task SignInUser(string email, string password) {
+		if (!Initialized)
+			await initTask;
+
+		await Auth.SignInWithEmailAndPasswordAsync(email, password);
+	}
+
+	public async Task SignInAnonymously() {
+		if (!Initialized)
+			await initTask;
+
+		await Auth.SignInAnonymouslyAsync();
 	}
 
 	public async Task<string> LoadUserData() {
