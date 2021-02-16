@@ -1,17 +1,13 @@
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
-using NAudio.Wave;
+using NLayer;
 using UnityEngine;
 
 public class PlayRandomMusic : MonoBehaviour {
 	private readonly HttpClient httpClient = new HttpClient();
 
-	private Mp3FileReader mp3Reader;
-	private WaveStream pcmStream;
-	private ISampleProvider sampleProvider;
+	private MpegFile mp3File;
 	private AudioClip audioClip;
 
 	private AudioSource audioSource;
@@ -30,16 +26,11 @@ public class PlayRandomMusic : MonoBehaviour {
 		Debug.Log("Downloading...");
 		byte[] rawMp3Data = await httpClient.GetByteArrayAsync(meta.tracklink);
 
-		// Setup the conversion stream.
-		mp3Reader = new Mp3FileReader(new MemoryStream(rawMp3Data));
-		pcmStream = WaveFormatConversionStream.CreatePcmStream(mp3Reader);
-		sampleProvider = pcmStream.ToSampleProvider();
+		// Setup decoder.
+		mp3File = new MpegFile(new MemoryStream(rawMp3Data));
+		int sampleCount = (int)(mp3File.Length / mp3File.Channels / sizeof(float));
 
-		// Create an audio clip from the converted data.
-		WaveFormat format = pcmStream.WaveFormat;
-		int sampleCount = (int)pcmStream.Length / (pcmStream.WaveFormat.BitsPerSample / 8);
-
-		audioClip = AudioClip.Create($"{meta.track} - {meta.band}", sampleCount, format.Channels, format.SampleRate, true, ReadSamples);
+		audioClip = AudioClip.Create($"{meta.track} - {meta.band}", sampleCount, mp3File.Channels, mp3File.SampleRate, true, ReadSamples);
 
 		Debug.Log($"Playing '{meta.track}' by '{meta.band}' ({meta.genre})...");
 		audioSource.clip = audioClip;
@@ -47,14 +38,12 @@ public class PlayRandomMusic : MonoBehaviour {
 	}
 
 	private void ReadSamples(float[] data) {
-		sampleProvider.Read(data, 0, data.Length);
+		mp3File.ReadSamples(data, 0, data.Length);
 	}
 
 
 	private void OnDestroy() {
 		Destroy(audioClip);
-		pcmStream?.Dispose();
-		mp3Reader?.Dispose();
 	}
 
 	[Serializable]
