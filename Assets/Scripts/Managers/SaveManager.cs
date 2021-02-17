@@ -40,40 +40,24 @@ public class SaveManager : SingletonBehaviour<SaveManager> {
 	}
 
 	public async Task Load() {
-		string data;
+		string data = null;
 
 		try {
 			data = await FirebaseManager.Instance.LoadUserData();
 		}
 		catch (Exception ex) {
-			Debug.LogError($"Failed to load data from firebase. Using local fallback.\n{ex}");
+			Debug.LogError($"Failed to load data from firebase.\n{ex}");
 
-			// Fallback to local save file.
-			data = ReadFile(SaveFile);
+			// // Fallback to local save file.
+			// data = ReadFile(SaveFile);
 		}
 
 		if (data != null)
 			SaveData = JsonUtility.FromJson<SaveData>(data);
+		else
+			SaveData = new SaveData();
 	}
 
-	// public async void Save() {
-	// 	string data = JsonUtility.ToJson(SaveData);
-	// 	WriteFile(SaveFile, data);
-	// 	await SaveRemote(SaveFile, data);
-	// 	print("Uploaded data");
-	// }
-	//
-	// public async void Load() {
-	// 	string data = ReadFile(SaveFile);
-	// 	if (data != null) {
-	// 		SaveData = JsonUtility.FromJson<SaveData>(data);
-	// 	}
-	//
-	// 	string remoteData = await LoadRemote(SaveFile);
-	// 	if (data != null && remoteData != null && data != remoteData) {
-	// 		Debug.LogWarning("Save data mismatch.");
-	// 	}
-	// }
 
 	// Local file system
 

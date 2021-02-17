@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,15 +8,30 @@ public class MainMenu : MonoBehaviour {
 	[SerializeField] private TMP_InputField[] nameFields;
 	[SerializeField] private SceneReference playScene;
 
-	private async void Start() {
-		await SaveManager.Instance.Load();
-		SaveData saveData = SaveManager.Instance.SaveData;
+	[Header("Screens")]
+	[SerializeField] private GameObject loadingScreen;
+	[SerializeField] private GameObject loginScreen;
+	[SerializeField] private GameObject menuScreen;
 
-		int num = Mathf.Min(saveData.players.Length, nameFields.Length);
-		for (int i = 0; i < num; i++) {
-			if (string.IsNullOrEmpty(nameFields[i].text))
-				nameFields[i].text = saveData.players[i].name;
+	private async void Start() {
+		loadingScreen.SetActive(true);
+		loginScreen.SetActive(false);
+		menuScreen.SetActive(false);
+
+		// Let firebase initialize before letting the user interact with the menus.
+		await FirebaseManager.Instance.WaitForInitialization();
+
+		if (FirebaseManager.Instance.IsSignedIn) {
+			await ShowMainMenuInternal();
 		}
+		else {
+			loadingScreen.SetActive(false);
+			loginScreen.SetActive(true);
+		}
+	}
+
+	public async void ShowMainMenu() {
+		await ShowMainMenuInternal();
 	}
 
 	public async void Save() {
@@ -35,5 +51,39 @@ public class MainMenu : MonoBehaviour {
 	public void Play() {
 		Save();
 		SceneManager.LoadScene(playScene);
+	}
+
+	public void LoadGameScene() {
+		SceneManager.LoadScene(playScene);
+	}
+
+	public void SignOut() {
+		FirebaseManager.Instance.SignOut();
+		loginScreen.SetActive(true);
+		menuScreen.SetActive(false);
+	}
+
+	private async Task ShowMainMenuInternal() {
+		await Load();
+
+		loadingScreen.SetActive(false);
+		loginScreen.SetActive(false);
+		menuScreen.SetActive(true);
+	}
+
+	private async Task Load() {
+		await SaveManager.Instance.Load();
+		SaveData saveData = SaveManager.Instance.SaveData;
+
+		// Clear the fields.
+		foreach (TMP_InputField field in nameFields)
+			field.text = "";
+
+		// Load names from the save data into the fields.
+		int num = Mathf.Min(saveData.players.Length, nameFields.Length);
+		for (int i = 0; i < num; i++) {
+			if (string.IsNullOrEmpty(nameFields[i].text))
+				nameFields[i].text = saveData.players[i].name;
+		}
 	}
 }

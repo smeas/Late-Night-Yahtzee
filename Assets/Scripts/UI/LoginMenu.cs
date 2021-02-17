@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Threading.Tasks;
 using Firebase;
 using Firebase.Auth;
 using TMPro;
@@ -40,9 +38,8 @@ namespace UI {
 			}
 
 			Debug.Assert(FirebaseManager.Instance.User != null);
-			onSuccessfulLogin.Invoke();
-
 			Debug.Log("Registered successfully");
+			onSuccessfulLogin.Invoke();
 		}
 
 		public async void SignIn() {
@@ -69,13 +66,24 @@ namespace UI {
 			}
 
 			Debug.Assert(FirebaseManager.Instance.User != null);
-			onSuccessfulLogin.Invoke();
-
 			Debug.Log("Signed in successfully");
+			onSuccessfulLogin.Invoke();
 		}
 
-		public void SignInAnonymously() {
-			throw new NotImplementedException();
+		public async void SignInAnonymously() {
+			try {
+				await FirebaseManager.Instance.SignInAnonymously();
+			}
+			catch (AggregateException agg) when (agg.InnerException is FirebaseException e) {
+				Debug.LogError($"Anonymous sign in failed: {e}  ({e.ErrorCode})");
+				ModalManager.Instance.ShowInfo(e.Message, null);
+
+				return;
+			}
+
+			Debug.Assert(FirebaseManager.Instance.User != null);
+			Debug.Log("Signed in successfully");
+			onSuccessfulLogin.Invoke();
 		}
 	}
 }

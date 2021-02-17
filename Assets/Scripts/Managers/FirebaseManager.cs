@@ -10,7 +10,8 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 	public FirebaseDatabase Database { get; private set; }
 	public FirebaseAuth Auth { get; private set; }
 	public FirebaseUser User => Auth.CurrentUser;
-	public DatabaseReference UserReference { get; private set; }
+	public DatabaseReference UserReference => Database.RootReference.Child("users/" + User.UserId);
+	public bool IsSignedIn => User != null;
 	public bool Initialized { get; private set; }
 
 	private Task initTask;
@@ -30,13 +31,18 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 		Database = FirebaseDatabase.DefaultInstance;
 		Auth = FirebaseAuth.DefaultInstance;
 
-		// Sign in
-		FirebaseUser user = await Auth.SignInAnonymouslyAsync();
-		UserReference = Database.RootReference.Child("users/" + user.UserId);
-		Debug.Log($"Signed in with user id: {user.UserId}");
+		// // Sign in
+		// FirebaseUser user = await Auth.SignInAnonymouslyAsync();
+		// UserReference = Database.RootReference.Child("users/" + user.UserId);
+		// Debug.Log($"Signed in with user id: {user.UserId}");
 
 		Initialized = true;
 		initTask = null;
+	}
+
+	public async Task WaitForInitialization() {
+		if (!Initialized)
+			await initTask;
 	}
 
 	public async Task RegisterUser(string email, string password) {
@@ -58,6 +64,10 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 			await initTask;
 
 		await Auth.SignInAnonymouslyAsync();
+	}
+
+	public void SignOut() {
+		Auth.SignOut();
 	}
 
 	public async Task<string> LoadUserData() {
