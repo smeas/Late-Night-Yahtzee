@@ -1,15 +1,16 @@
-using System;
-using System.Collections;
 using System.Threading.Tasks;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
 using UnityEngine;
 
+[DefaultExecutionOrder(-10)]
 public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 	public FirebaseDatabase Database { get; private set; }
 	public FirebaseAuth Auth { get; private set; }
 	public FirebaseUser User => Auth.CurrentUser;
+	public string UserId => User.UserId;
+	public DatabaseReference RootReference => Database.RootReference;
 	public DatabaseReference UserReference => Database.RootReference.Child("users/" + User.UserId);
 	public bool IsSignedIn => User != null;
 	public bool Initialized { get; private set; }
