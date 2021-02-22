@@ -14,10 +14,6 @@ namespace UI.Matchmaking {
 		private MatchData matchData;
 		private DatabaseReference matchReference;
 
-		private void OnEnable() {
-
-		}
-
 		private void OnDisable() {
 			if (matchReference != null)
 				matchReference.ValueChanged -= MatchReferenceOnValueChanged;

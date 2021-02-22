@@ -8,7 +8,7 @@ namespace UI.Matchmaking {
 		[SerializeField] private MatchListItem matchListItemPrefab;
 		[SerializeField] private Transform matchListRoot;
 
-		private List<MatchListItem> matchListItems = new List<MatchListItem>();
+		private readonly List<MatchListItem> matchListItems = new List<MatchListItem>();
 		private Query matchesQuery;
 		private bool isJoiningMatch;
 
@@ -16,6 +16,11 @@ namespace UI.Matchmaking {
 			await FirebaseManager.Instance.WaitForInitialization();
 			if (!enabled)
 				return;
+
+			// Clear the list.
+			matchListItems.Clear();
+			foreach (Transform item in matchListRoot)
+				Destroy(item.gameObject);
 
 			matchesQuery = MatchmakingManager.OpenMatchesQuery;
 			matchesQuery.ChildAdded += MatchesQueryOnChildAdded;

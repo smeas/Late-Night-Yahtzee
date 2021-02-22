@@ -18,7 +18,7 @@ public class MainMenu : MonoBehaviour {
 		loginScreen.SetActive(false);
 		menuScreen.SetActive(false);
 
-		// Let firebase initialize before letting the user interact with the menus.
+		// Let firebase initialize before allowing the user to interact with the menus.
 		await FirebaseManager.Instance.WaitForInitialization();
 
 		if (FirebaseManager.Instance.IsSignedIn) {

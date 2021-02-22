@@ -36,7 +36,7 @@ namespace Matchmaking {
 		}
 
 		public static async void DeleteMatch(string id) {
-			throw new NotImplementedException();
+			await GamesReference.Child(id).RemoveValueAsync();
 		}
 
 		/// <returns>Match data if successful, null otherwise.</returns>
@@ -73,11 +73,7 @@ namespace Matchmaking {
 		public static async Task<MatchData[]> GetOpenMatches() {
 			DataSnapshot dataSnapshot = await OpenMatchesQuery.GetValueAsync();
 
-			MatchData[] matches = dataSnapshot.Children.Select(snap => {
-				MatchData data = JsonUtility.FromJson<MatchData>(snap.GetRawJsonValue());
-				data.id = snap.Key;
-				return data;
-			}).ToArray();
+			MatchData[] matches = dataSnapshot.Children.Select(SnapshotToMatchData).ToArray();
 
 			return matches;
 		}
