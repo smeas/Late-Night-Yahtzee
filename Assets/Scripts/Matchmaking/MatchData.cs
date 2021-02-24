@@ -1,4 +1,5 @@
 using System;
+using Yahtzee;
 
 namespace Matchmaking {
 	[Serializable]
@@ -9,8 +10,7 @@ namespace Matchmaking {
 		public string player2;
 		public bool active;
 		public long created;
-
-		// TODO: Add game data field.
+		public GameState state;
 
 		public DateTimeOffset CreatedTime {
 			get => DateTimeOffset.FromUnixTimeSeconds(created);

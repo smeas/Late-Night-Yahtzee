@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace Yahtzee {
 	public enum PlayerIndex {
-		Player1,
-		Player2,
+		PlayerOne = 0,
+		PlayerTwo = 1,
 	}
 
 	[Serializable]
 	public class GameState {
-		[SerializeField] private PlayerIndex turn;
-		[SerializeField] private PlayerState player1;
-		[SerializeField] private PlayerState player2;
+		[SerializeField] public PlayerIndex turn;
+		[SerializeField] public PlayerState playerOne;
+		[SerializeField] public PlayerState playerTwo;
 	}
 }

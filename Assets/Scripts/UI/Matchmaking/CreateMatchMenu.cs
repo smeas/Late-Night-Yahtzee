@@ -1,8 +1,8 @@
-using System;
 using Firebase.Database;
 using Matchmaking;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UI.Matchmaking {
 
@@ -10,6 +10,7 @@ namespace UI.Matchmaking {
 
 	public class CreateMatchMenu : MonoBehaviour {
 		[SerializeField] private TextMeshProUGUI idText;
+		[SerializeField] private SceneReference gameScene;
 
 		private MatchData matchData;
 		private DatabaseReference matchReference;
@@ -39,7 +40,9 @@ namespace UI.Matchmaking {
 				// Someone joined the match.
 				// TODO: Figure out if we want to remove the onDisconnect operation here.
 
-				throw new NotImplementedException("Handle join");
+				SceneManager.LoadScene(gameScene);
+
+				//throw new NotImplementedException("Handle join");
 			}
 		}
 

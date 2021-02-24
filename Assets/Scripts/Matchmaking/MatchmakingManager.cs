@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Firebase.Database;
 using UnityEngine;
+using Yahtzee;
 
 namespace Matchmaking {
 	// TODO: See if this needs to be a MonoBehaviour or not.
@@ -17,6 +18,8 @@ namespace Matchmaking {
 			.OrderByChild("active").EqualTo(false)
 			.LimitToFirst(MaxQueryMatches);
 
+		public static MatchData CurrentMatch { get; private set; }
+
 
 		public static async Task<MatchData> CreateMatch() {
 			MatchData matchData = new MatchData {
@@ -24,6 +27,11 @@ namespace Matchmaking {
 				player2 = null,
 				active = false,
 				CreatedTime = DateTimeOffset.UtcNow,
+				state = new GameState {
+					turn = 0,
+					playerOne = new PlayerState(),
+					playerTwo = new PlayerState(),
+				}
 			};
 
 			DatabaseReference matchReference = GamesReference.Push();
@@ -31,11 +39,15 @@ namespace Matchmaking {
 			await matchReference.SetRawJsonValueAsync(JsonUtility.ToJson(matchData));
 
 			Debug.Log($"Created match with id: {matchData.id}");
+			CurrentMatch = matchData;
 
 			return matchData;
 		}
 
 		public static async void DeleteMatch(string id) {
+			if (CurrentMatch != null && CurrentMatch.id == id)
+				CurrentMatch = null;
+
 			await GamesReference.Child(id).RemoveValueAsync();
 		}
 
@@ -54,8 +66,8 @@ namespace Matchmaking {
 				}
 
 				// Write the data.
-				data.Child(nameof(MatchData.active)).Value = true;
 				data.Child(nameof(MatchData.player2)).Value = FirebaseManager.Instance.UserId;
+				data.Child(nameof(MatchData.active)).Value = true;
 
 				return TransactionResult.Success(data);
 			});
@@ -64,8 +76,10 @@ namespace Matchmaking {
 				return null;
 
 			MatchData matchData = SnapshotToMatchData(dataSnapshot);
-			if (matchData.active && matchData.player2 == FirebaseManager.Instance.UserId)
+			if (matchData.active && matchData.player2 == FirebaseManager.Instance.UserId) {
+				CurrentMatch = matchData;
 				return matchData;
+			}
 
 			return null;
 		}

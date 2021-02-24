@@ -146,6 +146,14 @@ namespace Yahtzee {
 			return (Scratched & (1 << (int)category)) != 0;
 		}
 
+		public bool HasScored(Category category) {
+			return this[category] != 0;
+		}
+
+		public bool CanChoose(Category category) {
+			return !HasScratched(category) && !HasScored(category);
+		}
+
 		public void UpdateSums() {
 			UpperSum = this[Category.Aces] + this[Category.Twos] + this[Category.Threes] +
 				this[Category.Fours] + this[Category.Fives] + this[Category.Sixes];

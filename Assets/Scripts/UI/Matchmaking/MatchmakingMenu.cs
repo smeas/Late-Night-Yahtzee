@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using Firebase.Database;
 using Matchmaking;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace UI.Matchmaking {
 	public class MatchmakingMenu : MonoBehaviour {
 		[SerializeField] private MatchListItem matchListItemPrefab;
 		[SerializeField] private Transform matchListRoot;
+		[SerializeField] private SceneReference gameScene;
 
 		private readonly List<MatchListItem> matchListItems = new List<MatchListItem>();
 		private Query matchesQuery;
@@ -41,6 +43,8 @@ namespace UI.Matchmaking {
 			MatchData matchData = await MatchmakingManager.TryJoinMatch(id);
 			if (matchData != null) {
 				Debug.Log($"Successfully joined match: {id}.");
+
+				SceneManager.LoadScene(gameScene);
 			}
 			else {
 				Debug.Log($"Failed to join match: {id}.");
@@ -50,7 +54,11 @@ namespace UI.Matchmaking {
 		}
 
 		private void MatchesQueryOnChildAdded(object sender, ChildChangedEventArgs e) {
-			AddMatch(MatchmakingManager.SnapshotToMatchData(e.Snapshot));
+			MatchData matchData = MatchmakingManager.SnapshotToMatchData(e.Snapshot);
+			if (matchData.player1 == FirebaseManager.Instance.UserId)
+				return;
+
+			AddMatch(matchData);
 		}
 
 		private void MatchesQueryOnChildRemoved(object sender, ChildChangedEventArgs e) {

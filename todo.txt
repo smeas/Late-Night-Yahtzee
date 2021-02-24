@@ -1,0 +1,10 @@
+High priority
+- [F] Allow locking dice
+- [F] Allow returning back to the menu
+- [F] Handle player disconnect for both host and client
+- [UX] Disable roll button while it can't be used
+- [F] Handle game over state
+
+
+Low priority
+- [UX] Make things look nice

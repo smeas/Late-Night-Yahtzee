@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour {
 	[SerializeField] private TMP_InputField[] nameFields;
 	[SerializeField] private SceneReference playScene;
+	[SerializeField] private TextMeshProUGUI currentUserText;
 
 	[Header("Screens")]
 	[SerializeField] private GameObject loadingScreen;
@@ -28,6 +29,21 @@ public class MainMenu : MonoBehaviour {
 			loadingScreen.SetActive(false);
 			loginScreen.SetActive(true);
 		}
+
+		OnAuthStateChanged(null, null);
+	}
+
+	private async void OnEnable() {
+		await FirebaseManager.Instance.WaitForInitialization();
+		FirebaseManager.Instance.Auth.StateChanged += OnAuthStateChanged;
+	}
+
+	private void OnDisable() {
+		FirebaseManager.Instance.Auth.StateChanged -= OnAuthStateChanged;
+	}
+
+	private void OnAuthStateChanged(object sender, EventArgs e) {
+		currentUserText.text = FirebaseManager.Instance.User?.UserId;
 	}
 
 	public async void ShowMainMenu() {
