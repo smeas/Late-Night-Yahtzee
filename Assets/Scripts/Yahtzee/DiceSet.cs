@@ -33,6 +33,12 @@ namespace Yahtzee {
 			}
 		}
 
+		public void UnlockAll() {
+			foreach (Die die in dice) {
+				die.Locked = false;
+			}
+		}
+
 		public int[] CalculateScores() {
 			// DO NOT REORDER!!!
 			return new int[16] {

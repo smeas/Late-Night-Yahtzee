@@ -7,8 +7,6 @@ namespace Yahtzee.UI {
 	public class YahtzeeGame : MonoBehaviour {
 		private const int MaxRolls = 3;
 
-		// [SerializeField] private PlayerColumn playerOneColumn;
-		// [SerializeField] private PlayerColumn playerTwoColumn;
 		[SerializeField] private TextMeshProUGUI turnText;
 		[SerializeField] private PlayerColumn[] playerColumns;
 		[SerializeField] private DiceUI diceUI;
@@ -19,7 +17,7 @@ namespace Yahtzee.UI {
 
 		private PlayerIndex localPlayerIndex;
 		private PlayerIndex otherPlayerIndex;
-		private DiceSet dice = new DiceSet();
+		private DiceSet diceSet = new DiceSet();
 		private int[] currentDiceScores;
 		private int rollCount;
 
@@ -32,7 +30,7 @@ namespace Yahtzee.UI {
 			Debug.Assert(playerColumns.Length == 2, "playerColumns.Length == 2");
 			playerColumns[0].Initialize(this, PlayerIndex.PlayerOne);
 			playerColumns[1].Initialize(this, PlayerIndex.PlayerTwo);
-			diceUI.Dice = dice;
+			diceUI.Initialize(this, diceSet);
 
 			matchData = MatchmakingManager.CurrentMatch;
 			matchReference = MatchmakingManager.GamesReference.Child(matchData.id);
@@ -101,7 +99,7 @@ namespace Yahtzee.UI {
 
 			// TODO: Handle turn change
 			if (currentTurn == localPlayerIndex) {
-				rollCount = 0;
+				diceUI.CanRoll = true;
 				// ...
 			}
 		}
@@ -155,15 +153,33 @@ namespace Yahtzee.UI {
 
 		private void RollDice() {
 			print("Roll");
-			dice.Roll();
-			currentDiceScores = dice.CalculateScores();
-			diceUI.UpdateRepresentation();
+			diceSet.Roll();
+			currentDiceScores = diceSet.CalculateScores();
 			rollCount++;
+
+			if (rollCount == 1) {
+				// After first roll
+				diceUI.BlankDice = false;
+				diceUI.CanLock = true;
+			}
+			else if (rollCount == MaxRolls) {
+				// After last roll
+				diceUI.CanRoll = false;
+			}
+
+			diceUI.UpdateRepresentation();
 		}
 
 		private async void EndTurn() {
 			Debug.Assert(currentTurn == localPlayerIndex);
 			print("End turn");
+
+			rollCount = 0;
+			diceSet.UnlockAll();
+			diceUI.BlankDice = true;
+			diceUI.CanLock = false;
+			diceUI.CanRoll = false;
+			diceUI.UpdateRepresentation();
 
 			// Set the turn locally first as it is used to determine whether the player can perform actions.
 			currentTurn = otherPlayerIndex;
