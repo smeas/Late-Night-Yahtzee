@@ -35,6 +35,27 @@ namespace UI.Matchmaking {
 			idText.text = matchData.id;
 		}
 
+		public async void CreateMatch() {
+			idText.text = "";
+
+			matchData = await MatchmakingManager.CreateMatch();
+			matchReference = MatchmakingManager.GamesReference.Child(matchData.id);
+
+			// Delete the match when the game quits.
+			await matchReference.OnDisconnect().RemoveValue();
+
+			matchReference.ValueChanged += MatchReferenceOnValueChanged;
+
+			idText.text = matchData.id;
+		}
+
+		public void DeleteMatch() {
+			if (matchReference != null)
+				matchReference.ValueChanged -= MatchReferenceOnValueChanged;
+
+			MatchmakingManager.DeleteMatch(matchData.id);
+		}
+
 		private void MatchReferenceOnValueChanged(object sender, ValueChangedEventArgs e) {
 			if ((bool)e.Snapshot.Child(nameof(MatchData.active)).Value) {
 				// Someone joined the match.

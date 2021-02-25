@@ -1,24 +1,27 @@
 using TMPro;
+using UI;
 using UI.Modal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour {
-	[SerializeField] private TMP_InputField[] nameFields;
 	[SerializeField] private SceneReference playScene;
 	[SerializeField] private TextMeshProUGUI currentUserText;
 
 	[Header("Screens")]
 	[SerializeField] private GameObject loadingScreen;
 	[SerializeField] private GameObject loginScreen;
-	[SerializeField] private GameObject menuScreen;
+
+	private MenuManager menuManager;
 
 	private async void Start() {
+		menuManager = GetComponent<MenuManager>();
+
 		currentUserText.enabled = false;
 
 		loadingScreen.SetActive(true);
 		loginScreen.SetActive(false);
-		menuScreen.SetActive(false);
+		menuManager.enabled = false;
 
 		// Let firebase initialize before allowing the user to interact with the menus.
 		await FirebaseManager.Instance.WaitForInitialization();
@@ -70,7 +73,7 @@ public class MainMenu : MonoBehaviour {
 	public void ShowMainMenu() {
 		loadingScreen.SetActive(false);
 		loginScreen.SetActive(false);
-		menuScreen.SetActive(true);
+		menuManager.enabled = true;
 	}
 
 	public void LoadGameScene() {
@@ -80,6 +83,6 @@ public class MainMenu : MonoBehaviour {
 	public void SignOut() {
 		FirebaseManager.Instance.SignOut();
 		loginScreen.SetActive(true);
-		menuScreen.SetActive(false);
+		menuManager.enabled = false;
 	}
 }

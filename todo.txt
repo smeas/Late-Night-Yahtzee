@@ -9,3 +9,6 @@ Low priority
 - [F/DB] Order matches by creation time
 - [UX] Display creation time on matches
 - [UX] Make things look nice
+- [UX] Allow tab to jump between input fields
+- [UX] Allow enter in input fields to confirm
+- [UX] Add juice
