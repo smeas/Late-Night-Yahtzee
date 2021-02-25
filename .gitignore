@@ -1,17 +1,3 @@
-# Rider
-/.idea/
-
-# Secrets
-/Assets/StreamingAssets/google-services.json
-/Assets/StreamingAssets/google-services.json.meta
-/Assets/StreamingAssets/google-services-desktop.json
-/Assets/StreamingAssets/google-services-desktop.json.meta
-
-# Other
-*.ignore
-/UserSettings/
-
-
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
@@ -72,3 +58,18 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# ----- ----- ----- #
+
+# Rider
+/.idea/
+
+# Secrets
+/Assets/StreamingAssets/google-services.json
+/Assets/StreamingAssets/google-services.json.meta
+/Assets/StreamingAssets/google-services-desktop.json
+/Assets/StreamingAssets/google-services-desktop.json.meta
+
+# Other
+*.ignore
+*.ignore.meta
+/UserSettings/
