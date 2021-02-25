@@ -31,7 +31,7 @@ namespace Yahtzee.UI {
 			Debug.Assert(diceButtons.Length == diceSet.Dice.Length, "diceButtons.Length == Dice.Dice.Length");
 			Debug.Assert(diceSprites.Length == 6, "diceSprites.Length == 6");
 
-			for (int i = 0; i < 6; i++) {
+			for (int i = 0; i < diceButtons.Length; i++) {
 				int index = i;
 				diceButtons[i].onClick.AddListener(() => OnDieClick(index));
 			}

@@ -95,6 +95,9 @@ MonoBehaviour:
   - {fileID: 6726489677414955700}
   - {fileID: 3206983646873094461}
   diceUI: {fileID: 0}
+  menuScene:
+    buildIndex: 2
+    sceneAsset: {fileID: 102900000, guid: b86c3e1f8dd12ab4bb90f6134b1e2d99, type: 3}
 --- !u!1001 &3210855891051008020
 PrefabInstance:
   m_ObjectHideFlags: 0

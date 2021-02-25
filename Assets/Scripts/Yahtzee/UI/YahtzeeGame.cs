@@ -1,7 +1,9 @@
 using Firebase.Database;
 using Matchmaking;
 using TMPro;
+using UI.Modal;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Yahtzee.UI {
 	public class YahtzeeGame : MonoBehaviour {
@@ -10,6 +12,7 @@ namespace Yahtzee.UI {
 		[SerializeField] private TextMeshProUGUI turnText;
 		[SerializeField] private PlayerColumn[] playerColumns;
 		[SerializeField] private DiceUI diceUI;
+		[SerializeField] private SceneReference menuScene;
 
 		private DatabaseReference matchReference;
 		private DatabaseReference matchStateReference;
@@ -87,12 +90,22 @@ namespace Yahtzee.UI {
 					       : nameof(matchData.state.playerOne)).ValueChanged -= OnOtherPlayerStateChanged;
 		}
 
+		private void Update() {
+			// Allow exiting to menu
+			if (Input.GetKeyDown(KeyCode.Escape)) {
+				ModalManager.Instance.ShowYesNo("Are you sure you want to exit?", ok => {
+					if (ok) {
+						ExitToMenu();
+					}
+				});
+			}
+		}
 
 
 		#region Event handlers
 
 		private void OnTurnChanged(object sender, ValueChangedEventArgs e) {
-			currentTurn = (PlayerIndex)(int)(long)e.Snapshot.GetValue(false); // FIXME: 99% gonna break
+			currentTurn = (PlayerIndex)(int)(long)e.Snapshot.GetValue(false);
 
 			print($"Turn changed: {currentTurn}");
 			turnText.text = currentTurn.ToString();
@@ -195,5 +208,9 @@ namespace Yahtzee.UI {
 			await matchStateReference.Child(nameof(GameState.turn)).SetValueAsync((int)currentTurn); // TODO: What happens if I pass an enum here?
 		}
 
+		private void ExitToMenu() {
+			SceneManager.LoadScene(menuScene);
+			// TODO: End match
+		}
 	}
 }
