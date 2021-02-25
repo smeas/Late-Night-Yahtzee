@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Firebase;
 using Firebase.Auth;
@@ -6,16 +7,24 @@ using UnityEngine;
 
 [DefaultExecutionOrder(-10)]
 public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
-	public FirebaseDatabase Database { get; private set; }
 	public FirebaseAuth Auth { get; private set; }
-	public FirebaseUser User => Auth.CurrentUser;
-	public string UserId => User.UserId;
+	public FirebaseDatabase Database { get; private set; }
+
 	public DatabaseReference RootReference => Database.RootReference;
 	public DatabaseReference UserReference => Database.RootReference.Child("users/" + User.UserId);
+
+	public string UserId => User.UserId;
+	public FirebaseUser User => Auth.CurrentUser;
+	public UserInfo UserInfo { get; private set; }
+
 	public bool IsSignedIn => User != null;
 	public bool Initialized { get; private set; }
 
 	private Task initTask;
+
+
+	public event Action<string> UsernameChanged;
+
 
 	protected override void Awake() {
 		base.Awake();
@@ -32,10 +41,11 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 		Database = FirebaseDatabase.DefaultInstance;
 		Auth = FirebaseAuth.DefaultInstance;
 
-		// // Sign in
-		// FirebaseUser user = await Auth.SignInAnonymouslyAsync();
-		// UserReference = Database.RootReference.Child("users/" + user.UserId);
-		// Debug.Log($"Signed in with user id: {user.UserId}");
+		// Fetch existing user info
+		if (IsSignedIn) {
+			await FetchUserInfo();
+			UsernameChanged?.Invoke(UserInfo.username);
+		}
 
 		Initialized = true;
 		initTask = null;
@@ -46,11 +56,17 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 			await initTask;
 	}
 
+	#region Auth
+
 	public async Task RegisterUser(string email, string password) {
 		if (!Initialized)
 			await initTask;
 
 		await Auth.CreateUserWithEmailAndPasswordAsync(email, password);
+
+		UserInfo = new UserInfo {id = UserId};
+		await PushUserInfo();
+		UsernameChanged?.Invoke(null);
 	}
 
 	public async Task SignInUser(string email, string password) {
@@ -58,6 +74,9 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 			await initTask;
 
 		await Auth.SignInWithEmailAndPasswordAsync(email, password);
+
+		await FetchUserInfo();
+		UsernameChanged?.Invoke(UserInfo.username);
 	}
 
 	public async Task SignInAnonymously() {
@@ -65,24 +84,37 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 			await initTask;
 
 		await Auth.SignInAnonymouslyAsync();
+
+		UserInfo = new UserInfo {id = UserId};
+		await PushUserInfo();
+		UsernameChanged?.Invoke(null);
 	}
 
 	public void SignOut() {
 		Auth.SignOut();
+
+		UserInfo = null;
+		UsernameChanged?.Invoke(null);
 	}
 
-	public async Task<string> LoadUserData() {
-		if (!Initialized)
-			await initTask;
+	#endregion
 
-		DataSnapshot data = await UserReference.Child("data").GetValueAsync();
-		return data.GetRawJsonValue();
+	public async Task UpdateUsername(string username) {
+		username = username.Trim();
+		await UserReference.Child(nameof(UserInfo.username)).SetValueAsync(username);
+		UserInfo.username = username;
+
+		UsernameChanged?.Invoke(username);
 	}
 
-	public async Task SaveUserData(string data) {
-		if (!Initialized)
-			await initTask;
+	private async Task FetchUserInfo() {
+		DataSnapshot snap = await UserReference.GetValueAsync();
+		UserInfo = JsonUtility.FromJson<UserInfo>(snap.GetRawJsonValue() ?? "{}");
+		UserInfo.id = snap.Key;
+	}
 
-		await UserReference.Child("data").SetRawJsonValueAsync(data);
+	private async Task PushUserInfo() {
+		string userInfoJson = JsonUtility.ToJson(UserInfo);
+		await UserReference.SetRawJsonValueAsync(userInfoJson);
 	}
 }

@@ -37,9 +37,11 @@ namespace UI {
 				return;
 			}
 
-			Debug.Assert(FirebaseManager.Instance.User != null);
-			Debug.Log("Registered successfully");
-			onSuccessfulLogin.Invoke();
+			RequestSetUsername(() => {
+				Debug.Assert(FirebaseManager.Instance.User != null);
+				Debug.Log("Registered successfully");
+				onSuccessfulLogin.Invoke();
+			});
 		}
 
 		public async void SignIn() {
@@ -81,9 +83,18 @@ namespace UI {
 				return;
 			}
 
-			Debug.Assert(FirebaseManager.Instance.User != null);
-			Debug.Log("Signed in successfully");
-			onSuccessfulLogin.Invoke();
+			RequestSetUsername(() => {
+				Debug.Assert(FirebaseManager.Instance.User != null);
+				Debug.Log("Signed in successfully");
+				onSuccessfulLogin.Invoke();
+			});
+		}
+
+		private void RequestSetUsername(Action callback) {
+			ModalManager.Instance.ShowValue("Enter a username", "Username", async username => {
+				await FirebaseManager.Instance.UpdateUsername(username);
+				callback();
+			});
 		}
 	}
 }

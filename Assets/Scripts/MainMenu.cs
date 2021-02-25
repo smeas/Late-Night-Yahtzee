@@ -1,6 +1,5 @@
-using System;
-using System.Threading.Tasks;
 using TMPro;
+using UI.Modal;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,6 +14,8 @@ public class MainMenu : MonoBehaviour {
 	[SerializeField] private GameObject menuScreen;
 
 	private async void Start() {
+		currentUserText.enabled = false;
+
 		loadingScreen.SetActive(true);
 		loginScreen.SetActive(false);
 		menuScreen.SetActive(false);
@@ -23,50 +24,53 @@ public class MainMenu : MonoBehaviour {
 		await FirebaseManager.Instance.WaitForInitialization();
 
 		if (FirebaseManager.Instance.IsSignedIn) {
-			await ShowMainMenuInternal();
+			ShowMainMenu();
 		}
 		else {
 			loadingScreen.SetActive(false);
 			loginScreen.SetActive(true);
 		}
 
-		OnAuthStateChanged(null, null);
-	}
-
-	private async void OnEnable() {
-		await FirebaseManager.Instance.WaitForInitialization();
-		FirebaseManager.Instance.Auth.StateChanged += OnAuthStateChanged;
+		FirebaseManager.Instance.UsernameChanged += OnUsernameChanged;
+		OnUsernameChanged(FirebaseManager.Instance.UserInfo?.username);
+		currentUserText.enabled = true;
 	}
 
 	private void OnDisable() {
-		FirebaseManager.Instance.Auth.StateChanged -= OnAuthStateChanged;
+		if (FirebaseManager.Instance == null)
+			return;
+
+		FirebaseManager.Instance.UsernameChanged -= OnUsernameChanged;
 	}
 
-	private void OnAuthStateChanged(object sender, EventArgs e) {
-		currentUserText.text = FirebaseManager.Instance.User?.UserId;
-	}
+	#region Event handlers
 
-	public async void ShowMainMenu() {
-		await ShowMainMenuInternal();
-	}
+	private void OnUsernameChanged(string username) {
+		string userText = null;
 
-	public async void Save() {
-		SaveData saveData = SaveManager.Instance.SaveData;
-
-		if (nameFields.Length > saveData.players.Length)
-			Array.Resize(ref saveData.players, nameFields.Length);
-
-		for (int i = 0; i < nameFields.Length; i++) {
-			saveData.players[i] ??= new PlayerInfo();
-			saveData.players[i].name = nameFields[i].text;
+		if (FirebaseManager.Instance.IsSignedIn) {
+			userText = "Signed in as: ";
+			if (string.IsNullOrEmpty(username))
+				userText += FirebaseManager.Instance.UserId;
+			else
+				userText += username;
 		}
 
-		await SaveManager.Instance.Save();
+		currentUserText.text = userText;
 	}
 
-	public void Play() {
-		Save();
-		SceneManager.LoadScene(playScene);
+	public void OnChangeUsernamePressed() {
+		ModalManager.Instance.ShowValue("Enter a new username", "Username", async username => {
+			await FirebaseManager.Instance.UpdateUsername(username);
+		});
+	}
+
+	#endregion
+
+	public void ShowMainMenu() {
+		loadingScreen.SetActive(false);
+		loginScreen.SetActive(false);
+		menuScreen.SetActive(true);
 	}
 
 	public void LoadGameScene() {
@@ -77,29 +81,5 @@ public class MainMenu : MonoBehaviour {
 		FirebaseManager.Instance.SignOut();
 		loginScreen.SetActive(true);
 		menuScreen.SetActive(false);
-	}
-
-	private async Task ShowMainMenuInternal() {
-		await Load();
-
-		loadingScreen.SetActive(false);
-		loginScreen.SetActive(false);
-		menuScreen.SetActive(true);
-	}
-
-	private async Task Load() {
-		await SaveManager.Instance.Load();
-		SaveData saveData = SaveManager.Instance.SaveData;
-
-		// Clear the fields.
-		foreach (TMP_InputField field in nameFields)
-			field.text = "";
-
-		// Load names from the save data into the fields.
-		int num = Mathf.Min(saveData.players.Length, nameFields.Length);
-		for (int i = 0; i < num; i++) {
-			if (string.IsNullOrEmpty(nameFields[i].text))
-				nameFields[i].text = saveData.players[i].name;
-		}
 	}
 }

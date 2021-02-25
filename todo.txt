@@ -3,7 +3,9 @@ High priority
 - [F] Handle player disconnect for both host and client
 - [F] Handle game over state
 - [UX] Notify user when its their turn
-- [DB] Add usernames
 
 Low priority
+- [DB] Move active games to their own table
+- [F/DB] Order matches by creation time
+- [UX] Display creation time on matches
 - [UX] Make things look nice

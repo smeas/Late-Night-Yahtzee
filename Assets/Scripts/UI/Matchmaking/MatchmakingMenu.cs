@@ -65,9 +65,20 @@ namespace UI.Matchmaking {
 			RemoveMatch(e.Snapshot.Key);
 		}
 
-		private void AddMatch(MatchData match) {
+		private async void AddMatch(MatchData match) {
 			MatchListItem item = Instantiate(matchListItemPrefab, matchListRoot);
-			item.Initialize(this, match.id, match.player1);
+
+			DataSnapshot usernameSnapshot = await FirebaseManager.Instance.RootReference
+				.Child("users/" + match.player1)
+				.Child(nameof(UserInfo.username))
+				.GetValueAsync();
+
+			string hostUsername = (string)usernameSnapshot?.GetValue(false);
+			if (string.IsNullOrEmpty(hostUsername))
+				hostUsername = match.player1;
+
+			item.Initialize(this, match.id, hostUsername);
+
 			matchListItems.Add(item);
 		}
 

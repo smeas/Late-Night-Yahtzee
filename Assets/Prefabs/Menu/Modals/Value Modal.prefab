@@ -37,6 +37,34 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1865817770241014905, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1865817770241014905, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1865817770241014905, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1340295383499284540}
+    - target: {fileID: 1865817770241014905, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1865817770241014905, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Ok
+      objectReference: {fileID: 0}
+    - target: {fileID: 1865817770241014905, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: UI.Modal.ValueModal, Main
+      objectReference: {fileID: 0}
+    - target: {fileID: 1865817770241014905, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 7035604795928247834, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -123,7 +151,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8352818300994913636, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
       propertyPath: m_Name
-      value: Value Modal Variant
+      value: Value Modal
       objectReference: {fileID: 0}
     - target: {fileID: 8441500796984812750, guid: 94189b46ca790b34aa427436e7d693c9, type: 3}
       propertyPath: m_SizeDelta.y
