@@ -42,12 +42,12 @@ namespace UI.Matchmaking {
 
 			MatchData matchData = await MatchmakingManager.TryJoinMatch(id);
 			if (matchData != null) {
-				Debug.Log($"Successfully joined match: {id}.");
+				Debug.Log($"[MM] Successfully joined match: {id}.");
 
 				SceneManager.LoadScene(gameScene);
 			}
 			else {
-				Debug.Log($"Failed to join match: {id}.");
+				Debug.Log($"[MM] Failed to join match: {id}.");
 			}
 
 			isJoiningMatch = false;

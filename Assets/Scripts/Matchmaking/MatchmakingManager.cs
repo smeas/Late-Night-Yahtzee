@@ -38,7 +38,7 @@ namespace Matchmaking {
 			matchData.id = matchReference.Key;
 			await matchReference.SetRawJsonValueAsync(JsonUtility.ToJson(matchData));
 
-			Debug.Log($"Created match with id: {matchData.id}");
+			Debug.Log($"[MM] Created match with id: {matchData.id}");
 			CurrentMatch = matchData;
 
 			return matchData;

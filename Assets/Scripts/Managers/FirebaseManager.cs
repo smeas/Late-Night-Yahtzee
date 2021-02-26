@@ -36,7 +36,7 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 
 	private async Task Initialize() {
 		await FirebaseApp.CheckAndFixDependenciesAsync();
-		Debug.Log("Firebase initialized");
+		Debug.Log("[FB] Firebase initialized");
 
 		Database = FirebaseDatabase.DefaultInstance;
 		Auth = FirebaseAuth.DefaultInstance;

@@ -29,6 +29,8 @@ namespace Yahtzee.UI {
 		private PlayerState localPlayerState;
 		private PlayerState otherPlayerState;
 
+		private bool gameDeleted;
+
 		private void Start() {
 			Debug.Assert(playerColumns.Length == 2, "playerColumns.Length == 2");
 			playerColumns[0].Initialize(this, PlayerIndex.PlayerOne);
@@ -75,11 +77,22 @@ namespace Yahtzee.UI {
 		}
 
 		private void SetupSync() {
+			if (localPlayerIndex == PlayerIndex.PlayerTwo) {
+				// TODO: Maybe do something cleaner to signal this event?
+				matchReference.OnDisconnect().RemoveValue();
+			}
+
 			matchStateReference.Child(nameof(matchData.state.turn)).ValueChanged += OnTurnChanged;
+
+			// Listen to changes in the other player's state
 			matchStateReference
 				.Child(localPlayerIndex == PlayerIndex.PlayerOne
 					       ? nameof(matchData.state.playerTwo)
 					       : nameof(matchData.state.playerOne)).ValueChanged += OnOtherPlayerStateChanged;
+
+			// We never remove individual child nodes from the match data. So if a child gets removed, it means that the
+			// whole match is getting removed. This usually means that the opponent quit the game.
+			matchReference.ChildRemoved += OnMatchDeleted;
 		}
 
 		private void OnDisable() {
@@ -88,11 +101,13 @@ namespace Yahtzee.UI {
 				.Child(localPlayerIndex == PlayerIndex.PlayerOne
 					       ? nameof(matchData.state.playerTwo)
 					       : nameof(matchData.state.playerOne)).ValueChanged -= OnOtherPlayerStateChanged;
+
+			matchReference.ChildRemoved -= OnMatchDeleted;
 		}
 
 		private void Update() {
 			// Allow exiting to menu
-			if (Input.GetKeyDown(KeyCode.Escape)) {
+			if (!ModalManager.Instance.IsShowing && Input.GetKeyDown(KeyCode.Escape)) {
 				ModalManager.Instance.ShowYesNo("Are you sure you want to exit?", ok => {
 					if (ok) {
 						ExitToMenu();
@@ -105,9 +120,13 @@ namespace Yahtzee.UI {
 		#region Event handlers
 
 		private void OnTurnChanged(object sender, ValueChangedEventArgs e) {
+			object value = e.Snapshot.GetValue(false);
+			if (value == null)
+				return;
+
 			currentTurn = (PlayerIndex)(int)(long)e.Snapshot.GetValue(false);
 
-			print($"Turn changed: {currentTurn}");
+			print($"[Game] Turn changed: {currentTurn}");
 			turnText.text = currentTurn.ToString();
 
 			// TODO: Handle turn change
@@ -119,14 +138,27 @@ namespace Yahtzee.UI {
 
 		private void OnOtherPlayerStateChanged(object sender, ValueChangedEventArgs e) {
 			string otherStateJson = e.Snapshot.GetRawJsonValue();
+			if (otherStateJson == null)
+				return;
+
 			otherPlayerState = JsonUtility.FromJson<PlayerState>(otherStateJson);
+			otherPlayerState.UpdateSums();
 
 			playerColumns[(int)otherPlayerIndex].Data = otherPlayerState;
 			playerColumns[(int)otherPlayerIndex].UpdateRepresentation();
 		}
 
+		private void OnMatchDeleted(object sender, ChildChangedEventArgs e) {
+			if (gameDeleted) return;
+			gameDeleted = true;
+
+			print("[Game] The match has been deleted!");
+
+			ModalManager.Instance.ShowInfo("Your opponent has forfeited the game!", ExitToMenu);
+		}
+
 		public void OnScorePressed(PlayerIndex playerIndex, Category category) {
-			print($"{playerIndex} pressed {category}");
+			print($"[Game] {playerIndex} pressed {category}");
 
 			if (playerIndex != localPlayerIndex) return;
 			if (currentTurn != localPlayerIndex) return;
@@ -153,19 +185,21 @@ namespace Yahtzee.UI {
 		#endregion
 
 		private void ScoreCategory(Category category) {
-			print($"Score {category}");
+			print($"[Game] Score {category}");
 			localPlayerState[category] = currentDiceScores[(int)category];
+			localPlayerState.UpdateSums();
 			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
 		}
 
 		private void ScratchCategory(Category category) {
-			print($"Scratch {category}");
+			print($"[Game] Scratch {category}");
 			localPlayerState.Scratch(category);
+			localPlayerState.UpdateSums();
 			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
 		}
 
 		private void RollDice() {
-			print("Roll");
+			print("[Game] Roll");
 			diceSet.Roll();
 			currentDiceScores = diceSet.CalculateScores();
 			rollCount++;
@@ -185,7 +219,7 @@ namespace Yahtzee.UI {
 
 		private async void EndTurn() {
 			Debug.Assert(currentTurn == localPlayerIndex);
-			print("End turn");
+			print("[Game] End turn");
 
 			rollCount = 0;
 			diceSet.UnlockAll();
@@ -208,9 +242,14 @@ namespace Yahtzee.UI {
 			await matchStateReference.Child(nameof(GameState.turn)).SetValueAsync((int)currentTurn); // TODO: What happens if I pass an enum here?
 		}
 
-		private void ExitToMenu() {
+		private async void ExitToMenu() {
+			if (!gameDeleted) {
+				// TODO: Maybe do something cleaner to signal this event?
+				await matchReference.RemoveValueAsync();
+				gameDeleted = true;
+			}
+
 			SceneManager.LoadScene(menuScene);
-			// TODO: End match
 		}
 	}
 }
