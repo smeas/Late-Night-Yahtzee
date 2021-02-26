@@ -260,20 +260,16 @@ namespace Yahtzee.UI {
 
 			gameOver = true;
 
-			bool tie = false;
-			PlayerIndex winner = 0;
-
-			if (localPlayerState.TotalSum > otherPlayerState.TotalSum)
-				winner = localPlayerIndex;
-			else if (localPlayerState.TotalSum == otherPlayerState.TotalSum)
-				tie = true;
-			else
-				winner = otherPlayerIndex;
-
-			if (tie)
+			if (localPlayerState.TotalSum == otherPlayerState.TotalSum) {
 				ModalManager.Instance.ShowInfo("Game over.\nIt's a tie!", ExitToMenu);
-			else
+			}
+			else {
+				PlayerIndex winner = localPlayerState.TotalSum > otherPlayerState.TotalSum
+					? localPlayerIndex
+					: otherPlayerIndex;
+
 				ModalManager.Instance.ShowInfo($"Game over.\n{winner} wins!", ExitToMenu);
+			}
 		}
 
 		private async void ExitToMenu() {
