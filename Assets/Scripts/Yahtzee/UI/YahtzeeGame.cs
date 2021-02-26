@@ -30,6 +30,7 @@ namespace Yahtzee.UI {
 		private PlayerState otherPlayerState;
 
 		private bool gameDeleted;
+		private bool gameOver;
 
 		private void Start() {
 			Debug.Assert(playerColumns.Length == 2, "playerColumns.Length == 2");
@@ -129,10 +130,14 @@ namespace Yahtzee.UI {
 			print($"[Game] Turn changed: {currentTurn}");
 			turnText.text = currentTurn.ToString();
 
-			// TODO: Handle turn change
+			if (currentTurn == localPlayerIndex && localPlayerState.IsFinished ||
+				currentTurn == otherPlayerIndex && otherPlayerState.IsFinished) {
+				GameOver();
+				return;
+			}
+
 			if (currentTurn == localPlayerIndex) {
 				diceUI.CanRoll = true;
-				// ...
 			}
 		}
 
@@ -154,7 +159,8 @@ namespace Yahtzee.UI {
 
 			print("[Game] The match has been deleted!");
 
-			ModalManager.Instance.ShowInfo("Your opponent has forfeited the game!", ExitToMenu);
+			if (!gameOver)
+				ModalManager.Instance.ShowInfo("Your opponent has forfeited the game!", ExitToMenu);
 		}
 
 		public void OnScorePressed(PlayerIndex playerIndex, Category category) {
@@ -245,11 +251,36 @@ namespace Yahtzee.UI {
 			await matchStateReference.Child(nameof(GameState.turn)).SetValueAsync((int)currentTurn);
 		}
 
+		private void GameOver() {
+			Debug.Log("[Game] Game over!");
+
+			Debug.Assert(
+				currentTurn == localPlayerIndex ? otherPlayerState.IsFinished : localPlayerState.IsFinished,
+				"Other player also finished");
+
+			gameOver = true;
+
+			bool tie = false;
+			PlayerIndex winner = 0;
+
+			if (localPlayerState.TotalSum > otherPlayerState.TotalSum)
+				winner = localPlayerIndex;
+			else if (localPlayerState.TotalSum == otherPlayerState.TotalSum)
+				tie = true;
+			else
+				winner = otherPlayerIndex;
+
+			if (tie)
+				ModalManager.Instance.ShowInfo("Game over.\nIt's a tie!", ExitToMenu);
+			else
+				ModalManager.Instance.ShowInfo($"Game over.\n{winner} wins!", ExitToMenu);
+		}
+
 		private async void ExitToMenu() {
 			if (!gameDeleted) {
 				// TODO: Maybe do something cleaner to signal this event?
-				await matchReference.RemoveValueAsync();
 				gameDeleted = true;
+				await matchReference.RemoveValueAsync();
 			}
 
 			SceneManager.LoadScene(menuScene);

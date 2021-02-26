@@ -14,6 +14,7 @@ namespace Yahtzee {
 		public int UpperSum { get; private set; }
 		public int TotalSum { get; private set; }
 		public bool HasGottenBonus { get; private set; }
+		public bool IsFinished { get; private set; }
 
 		// Bit-field with bit indices from `Category`.
 		public int Scratched => scratchedMask;
@@ -60,6 +61,14 @@ namespace Yahtzee {
 				this[Category.ThreeOfAKind] + this[Category.FourOfAKind] + this[Category.FullHouse] +
 				this[Category.SmallStraight] + this[Category.LargeStraight] + this[Category.Chance] +
 				this[Category.Yahtzee];
+
+			IsFinished =
+				!CanChoose(Category.Ones) && !CanChoose(Category.Twos) && !CanChoose(Category.Threes) &&
+				!CanChoose(Category.Fours) && !CanChoose(Category.Fives) && !CanChoose(Category.Sixes) &&
+				!CanChoose(Category.Pair) && !CanChoose(Category.TwoPair) && !CanChoose(Category.ThreeOfAKind) &&
+				!CanChoose(Category.FourOfAKind) && !CanChoose(Category.FullHouse) &&
+				!CanChoose(Category.SmallStraight) && !CanChoose(Category.LargeStraight) &&
+				!CanChoose(Category.Chance) && !CanChoose(Category.Yahtzee);
 		}
 	}
 }

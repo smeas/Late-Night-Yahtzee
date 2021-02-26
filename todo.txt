@@ -1,5 +1,5 @@
 High priority
-- [F] Handle game over state
+- [UX] Fix names to show up in game
 - [UX] Notify user when its their turn
 
 Low priority
