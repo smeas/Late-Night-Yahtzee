@@ -1,6 +1,6 @@
 namespace Yahtzee {
 	public enum Category {
-		Aces = 0,
+		Ones = 0,
 		Twos = 1,
 		Threes = 2,
 		Fours = 3,

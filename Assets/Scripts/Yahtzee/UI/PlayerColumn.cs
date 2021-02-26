@@ -44,7 +44,10 @@ namespace Yahtzee.UI {
 					text.text = "-";
 				}
 				else if (Data.Scores[i] == 0) {
-					text.text = "";
+					if ((Category)i == Category.Bonus && Data.HasGottenBonus)
+						text.text = "0";
+					else
+						text.text = "";
 				}
 				else {
 					text.text = Data.Scores[i].ToString();
@@ -54,10 +57,5 @@ namespace Yahtzee.UI {
 			upperSumText.text = Data.UpperSum.ToString();
 			totalSumText.text = Data.TotalSum.ToString();
 		}
-
-		// private void SetButtonText(Button button, string value) {
-		// 	TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
-		// 	text.text = value;
-		// }
 	}
 }

@@ -165,6 +165,9 @@ namespace Yahtzee.UI {
 			if (rollCount == 0) return;
 
 			if (localPlayerState.CanChoose(category)) {
+				if (category == Category.Bonus && localPlayerState.HasGottenBonus)
+					return;
+
 				if (currentDiceScores[(int)category] != 0) {
 					ScoreCategory(category);
 				}
@@ -239,7 +242,7 @@ namespace Yahtzee.UI {
 					       : nameof(GameState.playerTwo)).SetRawJsonValueAsync(localStateJson);
 
 			// Update the current turn on the database.
-			await matchStateReference.Child(nameof(GameState.turn)).SetValueAsync((int)currentTurn); // TODO: What happens if I pass an enum here?
+			await matchStateReference.Child(nameof(GameState.turn)).SetValueAsync((int)currentTurn);
 		}
 
 		private async void ExitToMenu() {
