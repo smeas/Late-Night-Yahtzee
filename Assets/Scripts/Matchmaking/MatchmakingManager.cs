@@ -54,34 +54,44 @@ namespace Matchmaking {
 		/// <returns>Match data if successful, null otherwise.</returns>
 		public static async Task<MatchData> TryJoinMatch(string matchId) {
 			DatabaseReference matchReference = GamesReference.Child(matchId);
+			DataSnapshot dataSnapshot;
 
-			// Run a transaction to avoid any potential race conditions.
-			DataSnapshot dataSnapshot = await matchReference.RunTransaction(data => {
-				if (data == null)
-					return TransactionResult.Success(null);
+			try {
+				// Run a transaction to avoid a potential race condition.
+				dataSnapshot = await matchReference.RunTransaction(data => {
+					if (!data.HasChildren)
+						return TransactionResult.Success(data);
 
-				if ((bool)data.Child(nameof(MatchData.active)).Value) {
-					// Someone else already joined.
-					return TransactionResult.Abort();
-				}
+					if ((bool)data.Child(nameof(MatchData.active)).Value) {
+						// Someone else already joined.
+						return TransactionResult.Abort();
+					}
 
-				// Write the data.
-				data.Child(nameof(MatchData.player2)).Value = FirebaseManager.Instance.UserId;
-				data.Child(nameof(MatchData.active)).Value = true;
+					// Write the data.
+					data.Child(nameof(MatchData.player2)).Value = FirebaseManager.Instance.UserId;
+					data.Child(nameof(MatchData.active)).Value = true;
 
-				return TransactionResult.Success(data);
-			});
-
-			if (dataSnapshot == null)
-				return null;
-
-			MatchData matchData = SnapshotToMatchData(dataSnapshot);
-			if (matchData.active && matchData.player2 == FirebaseManager.Instance.UserId) {
-				CurrentMatch = matchData;
-				return matchData;
+					return TransactionResult.Success(data);
+				});
+			}
+			catch (DatabaseException) {
+				 // Transaction was aborted.
+				 return null;
 			}
 
-			return null;
+			Debug.Assert(dataSnapshot != null, "dataSnapshot != null");
+
+			if (!dataSnapshot.Exists) {
+				// Match does not exist or was deleted.
+				return null;
+			}
+
+			MatchData matchData = SnapshotToMatchData(dataSnapshot);
+
+			Debug.Assert(matchData.active && matchData.player2 == FirebaseManager.Instance.UserId);
+
+			CurrentMatch = matchData;
+			return matchData;
 		}
 
 		public static async Task<MatchData[]> GetOpenMatches() {
