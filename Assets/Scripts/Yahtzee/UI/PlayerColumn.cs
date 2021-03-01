@@ -13,6 +13,7 @@ namespace Yahtzee.UI {
 		private PlayerIndex playerIndex;
 
 		public PlayerState Data { get; set; }
+		public string Name { set => headerText.text = value; }
 
 		private void Awake() {
 			Debug.Assert(scoreButtons.Length == 16, "scoreButtons.Length == 16");

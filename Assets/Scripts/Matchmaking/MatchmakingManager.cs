@@ -18,7 +18,7 @@ namespace Matchmaking {
 			.OrderByChild("active").EqualTo(false)
 			.LimitToFirst(MaxQueryMatches);
 
-		public static MatchData CurrentMatch { get; private set; }
+		public static MatchData CurrentMatch { get; set; }
 
 
 		public static async Task<MatchData> CreateMatch() {
@@ -91,6 +91,15 @@ namespace Matchmaking {
 			Debug.Assert(matchData.active && matchData.player2 == FirebaseManager.Instance.UserId);
 
 			CurrentMatch = matchData;
+			return matchData;
+		}
+
+		public static async Task<MatchData> GetMatch(string id) {
+			DataSnapshot snapshot = await GamesReference.Child(id).GetValueAsync();
+
+			MatchData matchData = JsonUtility.FromJson<MatchData>(snapshot.GetRawJsonValue());
+			matchData.id = snapshot.Key;
+
 			return matchData;
 		}
 

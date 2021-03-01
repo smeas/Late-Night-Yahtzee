@@ -29,10 +29,13 @@ namespace Yahtzee.UI {
 		private PlayerState localPlayerState;
 		private PlayerState otherPlayerState;
 
+		private UserInfo playerOneInfo;
+		private UserInfo playerTwoInfo;
+
 		private bool gameDeleted;
 		private bool gameOver;
 
-		private void Start() {
+		private async void Start() {
 			Debug.Assert(playerColumns.Length == 2, "playerColumns.Length == 2");
 			playerColumns[0].Initialize(this, PlayerIndex.PlayerOne);
 			playerColumns[1].Initialize(this, PlayerIndex.PlayerTwo);
@@ -53,7 +56,7 @@ namespace Yahtzee.UI {
 				otherPlayerIndex = PlayerIndex.PlayerOne;
 			}
 			else {
-				Debug.Assert(false);
+				Debug.Assert(false, "Current user is part of the match");
 			}
 
 			// Grab the current state
@@ -72,9 +75,16 @@ namespace Yahtzee.UI {
 			playerColumns[1].Data = matchData.state.playerTwo;
 			playerColumns[1].UpdateRepresentation();
 
+			// Get user infos
+			playerOneInfo = await FirebaseManager.Instance.GetUserInfo(matchData.player1);
+			playerTwoInfo = await FirebaseManager.Instance.GetUserInfo(matchData.player2);
+
+			playerColumns[0].Name = playerOneInfo.username;
+			playerColumns[1].Name = playerTwoInfo.username;
+
 			SetupSync();
 
-			turnText.text = currentTurn.ToString();
+			turnText.text = currentTurn == PlayerIndex.PlayerOne ? playerOneInfo.username : playerTwoInfo.username;
 		}
 
 		private void SetupSync() {
@@ -128,7 +138,7 @@ namespace Yahtzee.UI {
 			currentTurn = (PlayerIndex)(int)(long)e.Snapshot.GetValue(false);
 
 			print($"[Game] Turn changed: {currentTurn}");
-			turnText.text = currentTurn.ToString();
+			turnText.text = currentTurn == PlayerIndex.PlayerOne ? playerOneInfo.username : playerTwoInfo.username;
 
 			if (currentTurn == localPlayerIndex && localPlayerState.IsFinished ||
 				currentTurn == otherPlayerIndex && otherPlayerState.IsFinished) {

@@ -107,6 +107,13 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 		UsernameChanged?.Invoke(username);
 	}
 
+	public async Task<UserInfo> GetUserInfo(string userId) {
+		DataSnapshot snap = await RootReference.Child("users").Child(userId).GetValueAsync();
+		UserInfo userInfo = JsonUtility.FromJson<UserInfo>(snap.GetRawJsonValue());
+		userInfo.id = snap.Key;
+		return userInfo;
+	}
+
 	private async Task FetchUserInfo() {
 		DataSnapshot snap = await UserReference.GetValueAsync();
 		UserInfo = JsonUtility.FromJson<UserInfo>(snap.GetRawJsonValue() ?? "{}");

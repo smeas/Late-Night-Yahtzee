@@ -56,14 +56,15 @@ namespace UI.Matchmaking {
 			MatchmakingManager.DeleteMatch(matchData.id);
 		}
 
-		private void MatchReferenceOnValueChanged(object sender, ValueChangedEventArgs e) {
+		private async void MatchReferenceOnValueChanged(object sender, ValueChangedEventArgs e) {
 			if ((bool)e.Snapshot.Child(nameof(MatchData.active)).Value) {
 				// Someone joined the match.
 				// TODO: Figure out if we want to remove the onDisconnect operation here.
 
-				SceneManager.LoadScene(gameScene);
+				// Update local match information.
+				MatchmakingManager.CurrentMatch = matchData = await MatchmakingManager.GetMatch(matchData.id);
 
-				//throw new NotImplementedException("Handle join");
+				SceneManager.LoadScene(gameScene);
 			}
 		}
 

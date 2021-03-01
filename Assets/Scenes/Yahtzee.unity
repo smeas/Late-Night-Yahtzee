@@ -1297,6 +1297,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: Yahtzee Sheet
       objectReference: {fileID: 0}
+    - target: {fileID: 3210855891386914505, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_fontSize
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3210855891386914505, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_fontSizeMax
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 3210855891386914505, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_fontSizeMin
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3210855891386914505, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3210855891386914505, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3210855891465765044, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1816,6 +1836,26 @@ PrefabInstance:
     - target: {fileID: 6725972594708464797, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6725972594780775744, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_fontSize
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6725972594780775744, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_fontSizeMax
+      value: 24
+      objectReference: {fileID: 0}
+    - target: {fileID: 6725972594780775744, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_fontSizeMin
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 6725972594780775744, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_overflowMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6725972594780775744, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
+      propertyPath: m_enableAutoSizing
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e874ebe3e8e39304a91e124c0fff917a, type: 3}
