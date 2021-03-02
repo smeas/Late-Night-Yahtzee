@@ -1,4 +1,6 @@
 High priority
+- [UX] Show possible moves
+- [UX] Highlight last move
 - [UX] Notify user when its their turn
 
 Low priority

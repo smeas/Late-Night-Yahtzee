@@ -85,6 +85,10 @@ namespace Yahtzee.UI {
 			SetupSync();
 
 			turnText.text = currentTurn == PlayerIndex.PlayerOne ? playerOneInfo.username : playerTwoInfo.username;
+
+			diceUI.BlankDice = true;
+			diceUI.CanLock = false;
+			diceUI.CanRoll = localPlayerIndex == PlayerIndex.PlayerOne;
 		}
 
 		private void SetupSync() {
@@ -278,7 +282,9 @@ namespace Yahtzee.UI {
 					? localPlayerIndex
 					: otherPlayerIndex;
 
-				ModalManager.Instance.ShowInfo($"Game over.\n{winner} wins!", ExitToMenu);
+				string winnerName = winner == PlayerIndex.PlayerOne ? playerOneInfo.username : playerTwoInfo.username;
+
+				ModalManager.Instance.ShowInfo($"Game over.\n{winnerName} wins!", ExitToMenu);
 			}
 		}
 
