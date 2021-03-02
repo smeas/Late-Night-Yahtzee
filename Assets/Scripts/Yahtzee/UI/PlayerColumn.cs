@@ -9,11 +9,17 @@ namespace Yahtzee.UI {
 		[SerializeField] private TextMeshProUGUI totalSumText;
 		[SerializeField] private Button[] scoreButtons;
 
+		[Space]
+		[SerializeField] private Color normalTextColor = Color.black;
+		[SerializeField] private Color hintTextColor = Color.gray;
+
 		private YahtzeeGame game;
 		private PlayerIndex playerIndex;
 
-		public PlayerState Data { get; set; }
 		public string Name { set => headerText.text = value; }
+		public PlayerState Data { get; set; }
+		public int[] CurrentRollScores { get; set; }
+		public bool ShowHints { get; set; }
 
 		private void Awake() {
 			Debug.Assert(scoreButtons.Length == 16, "scoreButtons.Length == 16");
@@ -41,14 +47,22 @@ namespace Yahtzee.UI {
 		public void UpdateRepresentation() {
 			for (int i = 0; i < Data.Scores.Length; i++) {
 				TextMeshProUGUI text = scoreButtons[i].GetComponentInChildren<TextMeshProUGUI>();
+				text.color = normalTextColor;
+
 				if (Data.HasScratched((Category)i)) {
 					text.text = "-";
 				}
 				else if (Data.Scores[i] == 0) {
-					if ((Category)i == Category.Bonus && Data.HasGottenBonus)
+					if ((Category)i == Category.Bonus && Data.HasGottenBonus) {
 						text.text = "0";
-					else
+					}
+					else if (ShowHints) {
+						text.text = CurrentRollScores[i] != 0 ? CurrentRollScores[i].ToString() : "-";
+						text.color = hintTextColor;
+					}
+					else {
 						text.text = "";
+					}
 				}
 				else {
 					text.text = Data.Scores[i].ToString();

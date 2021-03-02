@@ -227,6 +227,11 @@ namespace Yahtzee.UI {
 			currentDiceScores = diceSet.CalculateScores();
 			rollCount++;
 
+			// Show available move hints
+			playerColumns[(int)localPlayerIndex].CurrentRollScores = currentDiceScores;
+			playerColumns[(int)localPlayerIndex].ShowHints = true;
+			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
+
 			if (rollCount == 1) {
 				// After first roll
 				diceUI.BlankDice = false;
@@ -250,6 +255,9 @@ namespace Yahtzee.UI {
 			diceUI.CanLock = false;
 			diceUI.CanRoll = false;
 			diceUI.UpdateRepresentation();
+
+			playerColumns[(int)localPlayerIndex].ShowHints = false;
+			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
 
 			// Set the turn locally first as it is used to determine whether the player can perform actions.
 			currentTurn = otherPlayerIndex;

@@ -987,6 +987,8 @@ MonoBehaviour:
   - {fileID: 8203364015617322605}
   - {fileID: 8203364014123560095}
   - {fileID: 8203364015563476026}
+  normalTextColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  hintTextColor: {r: 0.7019608, g: 0.7019608, b: 0.7019608, a: 1}
 --- !u!1 &8203364014348336600
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,9 +1,9 @@
 High priority
-- [UX] Show possible moves
 - [UX] Highlight last move
 - [UX] Notify user when its their turn
 
 Low priority
+- [UX] Make it 3D
 - [DB] Move active games to their own table
 - [DB/F] Order matches by creation time
 - [UX] Display creation time on matches
@@ -11,6 +11,8 @@ Low priority
 - [UX] Allow tab to jump between input fields
 - [UX] Allow enter in input fields to confirm
 - [UX] Add juice
+- [*] Allow more than 2 players
 
 Ideas
 - [UX] Shake to roll
+- [UX] Confirmation for some moves

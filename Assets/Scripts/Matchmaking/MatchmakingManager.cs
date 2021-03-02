@@ -6,7 +6,6 @@ using UnityEngine;
 using Yahtzee;
 
 namespace Matchmaking {
-	// TODO: See if this needs to be a MonoBehaviour or not.
 	public static class MatchmakingManager {
 		private const int MaxQueryMatches = 10;
 
