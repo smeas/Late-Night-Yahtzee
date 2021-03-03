@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Yahtzee.UI {
 	public class ThrowableDie : MonoBehaviour {
-		// Maps a Direction3D to the number on the die.
+		// Maps a Direction3Ds to the physical numbers on the dice.
 		private static readonly int[] dieNumbers = {
 			4, 3,
 			1, 6,
@@ -10,9 +10,9 @@ namespace Yahtzee.UI {
 		};
 
 		private Rigidbody rigi;
+		private bool locked;
 
-		public bool IsStable =>
-			rigi.IsSleeping(); //|| rigi.velocity.sqrMagnitude < 0.1f && rigi.angularVelocity.sqrMagnitude < 0.1f;
+		public bool IsStable => rigi.IsSleeping();
 
 		public Direction3D SideUp {
 			get {
@@ -42,13 +42,31 @@ namespace Yahtzee.UI {
 
 		public int CurrentValue => dieNumbers[(int)SideUp];
 
-		private void Awake() {
-			rigi = GetComponent<Rigidbody>();
+		public bool Locked {
+			get => locked;
+			set {
+				locked = value;
+
+				// Freeze the rigidbody when locked
+				rigi.isKinematic = locked;
+			}
 		}
 
-		// private void Update() {
-		// 	print($"{numbers[(int)SideUp]} -- {SideUp}");
-		// }
+		public Vector3 DefaultPosition { get; private set; }
+
+		public DiceUI3D DiceUI { get; set; }
+
+		private void Awake() {
+			rigi = GetComponent<Rigidbody>();
+			DefaultPosition = transform.position;
+		}
+
+		private void OnMouseDown() {
+			if (DiceUI != null)
+				DiceUI.OnDiePressed(this);
+
+			print($"click: {this}");
+		}
 
 		public void Throw(Vector3 velocity, Vector3 rotation) {
 			rigi.velocity = velocity;
