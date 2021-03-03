@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Yahtzee.unity
     guid: 6db2757c11146324298a0b8023a7a5a4
+  - enabled: 1
+    path: Assets/Scenes/Yahtzee 3D V2.unity
+    guid: 6f6232816c78d2647a7529b1f7bd6ff1
   m_configObjects: {}

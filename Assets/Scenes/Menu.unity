@@ -1429,8 +1429,8 @@ MonoBehaviour:
   matchListItemPrefab: {fileID: 2462934202171977370, guid: ce89e163ef132594b99514eceb8bcd61, type: 3}
   matchListRoot: {fileID: 395204110}
   gameScene:
-    buildIndex: 2
-    sceneAsset: {fileID: 102900000, guid: 6db2757c11146324298a0b8023a7a5a4, type: 3}
+    buildIndex: 3
+    sceneAsset: {fileID: 102900000, guid: 6f6232816c78d2647a7529b1f7bd6ff1, type: 3}
 --- !u!114 &583398495
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3080,8 +3080,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   idText: {fileID: 2012726775}
   gameScene:
-    buildIndex: 2
-    sceneAsset: {fileID: 102900000, guid: 6db2757c11146324298a0b8023a7a5a4, type: 3}
+    buildIndex: 3
+    sceneAsset: {fileID: 102900000, guid: 6f6232816c78d2647a7529b1f7bd6ff1, type: 3}
 --- !u!114 &1387795545
 MonoBehaviour:
   m_ObjectHideFlags: 0
