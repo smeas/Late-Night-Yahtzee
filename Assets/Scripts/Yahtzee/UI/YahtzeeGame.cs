@@ -11,7 +11,7 @@ namespace Yahtzee.UI {
 
 		[SerializeField] private TextMeshProUGUI turnText;
 		[SerializeField] private PlayerColumn[] playerColumns;
-		[SerializeField] private DiceUI diceUI;
+		[SerializeField] private DiceUI3D diceUI;
 		[SerializeField] private SceneReference menuScene;
 
 		private DatabaseReference matchReference;
@@ -20,7 +20,7 @@ namespace Yahtzee.UI {
 
 		private PlayerIndex localPlayerIndex;
 		private PlayerIndex otherPlayerIndex;
-		private DiceSet diceSet = new DiceSet();
+		private readonly DiceSet diceSet = new DiceSet();
 		private int[] currentDiceScores;
 		private int rollCount;
 
@@ -28,12 +28,11 @@ namespace Yahtzee.UI {
 		private PlayerIndex currentTurn;
 		private PlayerState localPlayerState;
 		private PlayerState otherPlayerState;
-
 		private UserInfo playerOneInfo;
 		private UserInfo playerTwoInfo;
-
 		private bool gameDeleted;
 		private bool gameOver;
+		private bool isRolling;
 
 		private async void Start() {
 			Debug.Assert(playerColumns.Length == 2, "playerColumns.Length == 2");
@@ -41,12 +40,14 @@ namespace Yahtzee.UI {
 			playerColumns[1].Initialize(this, PlayerIndex.PlayerTwo);
 			diceUI.Initialize(this, diceSet);
 
+			// Grab match data and DB references
 			matchData = MatchmakingManager.CurrentMatch;
 			matchReference = MatchmakingManager.GamesReference.Child(matchData.id);
 			matchStateReference = matchReference.Child(nameof(matchData.state));
 
 			Debug.Assert(matchData.player1 != matchData.player2, "matchData.player1 != matchData.player2");
 
+			// Setup player indices
 			if (matchData.player1 == FirebaseManager.Instance.UserId) {
 				localPlayerIndex = PlayerIndex.PlayerOne;
 				otherPlayerIndex = PlayerIndex.PlayerTwo;
@@ -70,11 +71,6 @@ namespace Yahtzee.UI {
 				otherPlayerState = matchData.state.playerOne;
 			}
 
-			playerColumns[0].Data = matchData.state.playerOne;
-			playerColumns[0].UpdateRepresentation();
-			playerColumns[1].Data = matchData.state.playerTwo;
-			playerColumns[1].UpdateRepresentation();
-
 			// Get user infos
 			playerOneInfo = await FirebaseManager.Instance.GetUserInfo(matchData.player1);
 			playerTwoInfo = await FirebaseManager.Instance.GetUserInfo(matchData.player2);
@@ -82,13 +78,20 @@ namespace Yahtzee.UI {
 			playerColumns[0].Name = playerOneInfo.username;
 			playerColumns[1].Name = playerTwoInfo.username;
 
-			SetupSync();
+			// Update the columns with the data
+			playerColumns[0].Data = matchData.state.playerOne;
+			playerColumns[0].UpdateRepresentation();
+			playerColumns[1].Data = matchData.state.playerTwo;
+			playerColumns[1].UpdateRepresentation();
 
 			turnText.text = currentTurn == PlayerIndex.PlayerOne ? playerOneInfo.username : playerTwoInfo.username;
 
 			diceUI.BlankDice = true;
 			diceUI.CanLock = false;
 			diceUI.CanRoll = localPlayerIndex == PlayerIndex.PlayerOne;
+			diceUI.RollCompleted += OnRollCompleted;
+
+			SetupSync();
 		}
 
 		private void SetupSync() {
@@ -205,25 +208,11 @@ namespace Yahtzee.UI {
 				RollDice();
 		}
 
-		#endregion
+		private void OnRollCompleted() {
+			print("[Game] Roll complete");
 
-		private void ScoreCategory(Category category) {
-			print($"[Game] Score {category}");
-			localPlayerState[category] = currentDiceScores[(int)category];
-			localPlayerState.UpdateSums();
-			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
-		}
+			isRolling = false;
 
-		private void ScratchCategory(Category category) {
-			print($"[Game] Scratch {category}");
-			localPlayerState.Scratch(category);
-			localPlayerState.UpdateSums();
-			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
-		}
-
-		private void RollDice() {
-			print("[Game] Roll");
-			diceSet.Roll();
 			currentDiceScores = diceSet.CalculateScores();
 			rollCount++;
 
@@ -243,6 +232,31 @@ namespace Yahtzee.UI {
 			}
 
 			diceUI.UpdateRepresentation();
+		}
+
+		#endregion
+
+		private void ScoreCategory(Category category) {
+			print($"[Game] Score {category}");
+			localPlayerState[category] = currentDiceScores[(int)category];
+			localPlayerState.UpdateSums();
+			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
+		}
+
+		private void ScratchCategory(Category category) {
+			print($"[Game] Scratch {category}");
+			localPlayerState.Scratch(category);
+			localPlayerState.UpdateSums();
+			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
+		}
+
+		private void RollDice() {
+			if (isRolling)
+				return;
+
+			print("[Game] Roll");
+			diceUI.RollDice();
+			isRolling = true;
 		}
 
 		private async void EndTurn() {

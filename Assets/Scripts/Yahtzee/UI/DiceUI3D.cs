@@ -3,11 +3,13 @@ using System.Collections;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace Yahtzee.UI {
-	public class DiceUI3D : MonoBehaviour {
+	public class DiceUI3D : MonoBehaviour, IDiceUI {
 		[SerializeField] private ThrowableDie[] dice;
+		[SerializeField] private Button rollButton;
 
 		[SerializeField] private Vector3 throwDirection = Vector3.up;
 		[SerializeField] private float throwConeAngle = 30;
@@ -27,7 +29,10 @@ namespace Yahtzee.UI {
 		private YahtzeeGame game;
 		private DiceSet diceSet;
 		private bool canLock = true;
+		private bool canRoll = true;
 		private bool isRolling;
+
+		public event Action RollCompleted;
 
 		public bool CanLock {
 			get => canLock;
@@ -36,12 +41,16 @@ namespace Yahtzee.UI {
 
 				if (!canLock) {
 					foreach (ThrowableDie die in dice)
-						die.Locked = false;
+						SetLocked(die, false);
 				}
 			}
 		}
 
-		public bool CanRoll { get; set; } = true;
+		public bool CanRoll {
+			get => canRoll;
+			set => rollButton.interactable = canRoll = value;
+		}
+
 		public bool BlankDice { get; set; }
 
 		private void Start() {
@@ -63,20 +72,14 @@ namespace Yahtzee.UI {
 			Debug.Assert(dice.Length == diceSet.Dice.Length);
 		}
 
-		public void UpdateRepresentation() {
-			throw new NotImplementedException();
-		}
+		public void UpdateRepresentation() { }
 
 		public void OnDiePressed(ThrowableDie die) {
-			// int index = Array.IndexOf(dice, die);
-			// if (index == -1)
-			// 	return;
-
 			if (!isRolling && CanLock)
 				SetLocked(die, !die.Locked);
 		}
 
-		private void RollDice() {
+		public void RollDice() {
 			if (!CanRoll) return;
 
 			StopAllCoroutines();
@@ -86,7 +89,8 @@ namespace Yahtzee.UI {
 		private Vector3 GetRandomThrowVector() {
 			float radius = Mathf.Tan(throwConeAngle * Mathf.Deg2Rad) * throwStrength;
 			Vector2 pointInCircle = Random.insideUnitCircle * radius;
-			return Quaternion.LookRotation(throwDirection) * new Vector3(pointInCircle.x, pointInCircle.y, throwStrength);
+			return Quaternion.LookRotation(throwDirection.normalized) *
+				new Vector3(pointInCircle.x, pointInCircle.y, throwStrength);
 		}
 
 		private IEnumerator CoRollDice() {
@@ -119,8 +123,20 @@ namespace Yahtzee.UI {
 
 			yield return new WaitForSeconds(moveBackDuration);
 
-			isRolling = false;
+			EndRoll();
+		}
+
+		private void EndRoll() {
 			print("Rolled: " + string.Join(", ", dice.Select(x => x.CurrentValue)));
+			isRolling = false;
+
+			if (!CanRoll) return;
+
+			// Update the dice set with the new values
+			for (int i = 0; i < diceSet.Dice.Length; i++)
+				diceSet.Dice[i].Value = dice[i].CurrentValue;
+
+			RollCompleted?.Invoke();
 		}
 
 		private void SetLocked(ThrowableDie die, bool state) {

@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Yahtzee.UI {
 	[DefaultExecutionOrder(1)]
-	public class DiceUI : MonoBehaviour {
+	public class DiceUI : MonoBehaviour, IDiceUI {
 		[SerializeField] private Button[] diceButtons;
 		[SerializeField] private Sprite[] diceSprites;
 		[SerializeField] private Sprite blankDieSprite;
@@ -14,6 +15,8 @@ namespace Yahtzee.UI {
 		private bool canLock;
 		private bool canRoll;
 		private bool blankDice;
+
+		public event Action RollCompleted;
 
 		public bool CanLock {
 			set => canLock = value;
@@ -47,6 +50,12 @@ namespace Yahtzee.UI {
 				diceButtons[i].GetComponent<Image>().sprite = blankDice ? blankDieSprite : diceSprites[diceSet.Dice[i].Value - 1];
 				UpdateLockEffect(i);
 			}
+		}
+
+		public void RollDice() {
+			diceSet.Roll();
+			UpdateRepresentation();
+			RollCompleted?.Invoke();
 		}
 
 		public void OnRollClick() {

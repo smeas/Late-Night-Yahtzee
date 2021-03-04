@@ -1,9 +1,12 @@
 High priority
 - [UX] Highlight last move
 - [UX] Notify user when its their turn
+- [F] Shake to roll
+- [UX] Realign dice after roll
+- Roll timeout
+- Audio
 
 Low priority
-- [UX] Make it 3D
 - [DB] Move active games to their own table
 - [DB/F] Order matches by creation time
 - [UX] Display creation time on matches
@@ -14,5 +17,4 @@ Low priority
 - [*] Allow more than 2 players
 
 Ideas
-- [UX] Shake to roll
 - [UX] Confirmation for some moves
