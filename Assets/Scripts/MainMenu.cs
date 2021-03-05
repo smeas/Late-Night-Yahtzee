@@ -13,12 +13,14 @@ public class MainMenu : MonoBehaviour {
 	[SerializeField] private GameObject loginScreen;
 
 	private MenuManager menuManager;
+	private bool hasLoaded;
 
 	private async void Start() {
 		menuManager = GetComponent<MenuManager>();
 
 		currentUserText.enabled = false;
 
+		// Display a loading screen while setting up
 		loadingScreen.SetActive(true);
 		loginScreen.SetActive(false);
 		menuManager.enabled = false;
@@ -37,6 +39,7 @@ public class MainMenu : MonoBehaviour {
 		FirebaseManager.Instance.UsernameChanged += OnUsernameChanged;
 		OnUsernameChanged(FirebaseManager.Instance.UserInfo?.username);
 		currentUserText.enabled = true;
+		hasLoaded = true;
 	}
 
 	private void OnDisable() {
@@ -44,6 +47,15 @@ public class MainMenu : MonoBehaviour {
 			return;
 
 		FirebaseManager.Instance.UsernameChanged -= OnUsernameChanged;
+	}
+
+	private void Update() {
+		if (hasLoaded && menuManager.OpenMenuCount == 1 && Input.GetKeyDown(KeyCode.Escape)) {
+			ModalManager.Instance.ShowYesNo("Are you sure you want to exit?", ok => {
+				if (ok)
+					Exit();
+			});
+		}
 	}
 
 	#region Event handlers
@@ -84,5 +96,9 @@ public class MainMenu : MonoBehaviour {
 		FirebaseManager.Instance.SignOut();
 		loginScreen.SetActive(true);
 		menuManager.enabled = false;
+	}
+
+	public void Exit() {
+		Application.Quit();
 	}
 }

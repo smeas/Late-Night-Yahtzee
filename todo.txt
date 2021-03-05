@@ -3,7 +3,6 @@ High priority
 - [UX] Notify user when its their turn
 - Roll timeout
 - Audio
-- Exit game with back button
 - Shake to roll hint/tip
 
 Low priority
