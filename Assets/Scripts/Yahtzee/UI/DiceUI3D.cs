@@ -119,6 +119,10 @@ namespace Yahtzee.UI {
 				die.transform
 					.DOMove(die.DefaultPosition, moveBackDuration)
 					.SetEase(moveBackEase);
+
+				die.transform
+					.DORotate(die.RealignedEulerRotation, moveBackDuration)
+					.SetEase(moveBackEase);
 			}
 
 			yield return new WaitForSeconds(moveBackDuration);

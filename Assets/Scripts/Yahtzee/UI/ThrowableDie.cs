@@ -40,6 +40,14 @@ namespace Yahtzee.UI {
 			}
 		}
 
+		public Vector3 RealignedEulerRotation {
+			get {
+				Vector3 worldEuler = transform.eulerAngles;
+				worldEuler.y = RoundToNearestMultiple(worldEuler.y, 90f);
+				return worldEuler;
+			}
+		}
+
 		public int CurrentValue => dieNumbers[(int)SideUp];
 
 		public bool Locked {
@@ -71,6 +79,14 @@ namespace Yahtzee.UI {
 		public void Throw(Vector3 velocity, Vector3 rotation) {
 			rigi.velocity = velocity;
 			rigi.angularVelocity = rotation;
+		}
+
+		private static float RoundToNearestMultiple(float value, float multiple) {
+			float remainder = value % multiple;
+			if (remainder >= multiple * 0.5f)
+				return value + (multiple - remainder);
+
+			return value - remainder;
 		}
 	}
 }
