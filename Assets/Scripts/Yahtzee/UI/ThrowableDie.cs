@@ -15,6 +15,27 @@ namespace Yahtzee.UI {
 		private Rigidbody rigi;
 		private bool locked;
 
+		public Vector3 DefaultPosition { get; private set; }
+
+		public DiceUI3D DiceUI { get; set; }
+
+		private void Awake() {
+			rigi = GetComponent<Rigidbody>();
+			DefaultPosition = transform.position;
+		}
+
+		private void OnMouseDown() {
+			if (DiceUI != null)
+				DiceUI.OnDiePressed(this);
+
+			print($"click: {this}");
+		}
+
+		private void OnCollisionEnter(Collision other) {
+			if (other.relativeVelocity.sqrMagnitude > 0.1f && other.collider.CompareTag("Table"))
+				audioPlayer.Play();
+		}
+
 		public bool IsStable => rigi.IsSleeping();
 
 		public Direction3D SideUp {
@@ -63,30 +84,14 @@ namespace Yahtzee.UI {
 			}
 		}
 
-		public Vector3 DefaultPosition { get; private set; }
-
-		public DiceUI3D DiceUI { get; set; }
-
-		private void Awake() {
-			rigi = GetComponent<Rigidbody>();
-			DefaultPosition = transform.position;
-		}
-
-		private void OnMouseDown() {
-			if (DiceUI != null)
-				DiceUI.OnDiePressed(this);
-
-			print($"click: {this}");
-		}
-
-		private void OnCollisionEnter(Collision other) {
-			if (other.relativeVelocity.sqrMagnitude > 0.1f && other.collider.CompareTag("Table"))
-				audioPlayer.Play();
-		}
-
 		public void Throw(Vector3 velocity, Vector3 rotation) {
 			rigi.velocity = velocity;
 			rigi.angularVelocity = rotation;
+		}
+
+		public void ClearVelocity() {
+			rigi.velocity = Vector3.zero;
+			rigi.angularVelocity = Vector3.zero;
 		}
 
 		private static float RoundToNearestMultiple(float value, float multiple) {

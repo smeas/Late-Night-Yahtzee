@@ -1,7 +1,6 @@
 High priority
 - [UX] Highlight last move
 - [UX] Notify user when its their turn
-- Roll timeout
 - Audio
 - Shake to roll hint/tip
 

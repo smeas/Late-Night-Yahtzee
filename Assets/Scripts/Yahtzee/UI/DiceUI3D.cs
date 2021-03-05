@@ -18,6 +18,8 @@ namespace Yahtzee.UI {
 		[SerializeField, MinMaxRange(0, 100)]
 		private Vector2 rotationStrength = new Vector2(5, 10);
 
+		[SerializeField] private float maxThrowDuration = 5f;
+
 		[Space]
 		[SerializeField] private float moveBackDuration = 0.5f;
 		[SerializeField] private Ease moveBackEase = Ease.OutQuad;
@@ -104,9 +106,19 @@ namespace Yahtzee.UI {
 				          Random.insideUnitSphere * Random.Range(rotationStrength.x, rotationStrength.y));
 			}
 
+			float timeout = maxThrowDuration;
+
 			// Wait for all the dice to land
 			while (true) {
 				yield return new WaitForFixedUpdate();
+
+				timeout -= Time.fixedDeltaTime;
+				if (timeout <= 0) {
+					foreach (ThrowableDie die in dice)
+						die.ClearVelocity();
+
+					break;
+				}
 
 				if (dice.All(die => die.Locked || die.IsStable))
 					break;

@@ -2286,6 +2286,7 @@ MonoBehaviour:
   throwConeAngle: 10
   throwStrength: 5
   rotationStrength: {x: 8, y: 15}
+  maxThrowDuration: 4
   moveBackDuration: 0.5
   moveBackEase: 6
   lockMoveDuration: 0.2
