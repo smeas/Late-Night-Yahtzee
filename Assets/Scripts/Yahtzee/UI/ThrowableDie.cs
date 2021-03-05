@@ -1,3 +1,4 @@
+using Audio;
 using UnityEngine;
 
 namespace Yahtzee.UI {
@@ -8,6 +9,8 @@ namespace Yahtzee.UI {
 			1, 6,
 			5, 2,
 		};
+
+		[SerializeField] private RandomAudioPlayer audioPlayer;
 
 		private Rigidbody rigi;
 		private bool locked;
@@ -74,6 +77,11 @@ namespace Yahtzee.UI {
 				DiceUI.OnDiePressed(this);
 
 			print($"click: {this}");
+		}
+
+		private void OnCollisionEnter(Collision other) {
+			if (other.relativeVelocity.sqrMagnitude > 0.1f && other.collider.CompareTag("Table"))
+				audioPlayer.Play();
 		}
 
 		public void Throw(Vector3 velocity, Vector3 rotation) {
