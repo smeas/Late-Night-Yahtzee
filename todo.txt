@@ -1,10 +1,10 @@
 High priority
 - [UX] Highlight last move
 - [UX] Notify user when its their turn
-- [F] Shake to roll
 - [UX] Realign dice after roll
 - Roll timeout
 - Audio
+- Exit game with back button
 
 Low priority
 - [DB] Move active games to their own table

@@ -91,6 +91,8 @@ namespace Yahtzee.UI {
 			diceUI.CanRoll = localPlayerIndex == PlayerIndex.PlayerOne;
 			diceUI.RollCompleted += OnRollCompleted;
 
+			ShakeDetector.Instance.Shake += OnRollPressed;
+
 			SetupSync();
 		}
 
@@ -121,6 +123,8 @@ namespace Yahtzee.UI {
 					       : nameof(matchData.state.playerOne)).ValueChanged -= OnOtherPlayerStateChanged;
 
 			matchReference.ChildRemoved -= OnMatchDeleted;
+
+			ShakeDetector.Instance.Shake -= OnRollPressed;
 		}
 
 		private void Update() {
