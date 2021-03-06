@@ -719,19 +719,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5390810617798519380}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &1104032310622372167
 GameObject:
   m_ObjectHideFlags: 0
@@ -979,8 +967,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   turnText: {fileID: 0}
-  sheet: {fileID: 1105067950773586634}
   diceUI: {fileID: 0}
+  sheet: {fileID: 1105067950773586634}
   menuScene:
     buildIndex: 0
     sceneAsset: {fileID: 102900000, guid: b86c3e1f8dd12ab4bb90f6134b1e2d99, type: 3}
