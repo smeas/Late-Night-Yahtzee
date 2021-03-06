@@ -36,8 +36,6 @@ namespace Yahtzee.UI {
 
 		private async void Start() {
 			sheet.Initialize(this, 2);
-			sheet.PlayerColumns[0].Initialize(this, PlayerIndex.PlayerOne);
-			sheet.PlayerColumns[1].Initialize(this, PlayerIndex.PlayerTwo);
 			diceUI.Initialize(this, diceSet);
 
 			// Grab match data and DB references

@@ -11,8 +11,6 @@ namespace Yahtzee.UI {
 		[SerializeField] private Color normalTextColor = Color.black;
 		[SerializeField] private Color hintTextColor = Color.gray;
 
-		private YahtzeeGame game;
-		private PlayerIndex playerIndex;
 		private ScoreItem[] scoreItems;
 
 		public string Name { set => headerText.text = value; }
@@ -31,11 +29,6 @@ namespace Yahtzee.UI {
 			headerText.text = gameObject.name;
 			upperSumText.text = "0";
 			totalSumText.text = "0";
-		}
-
-		public void Initialize(YahtzeeGame game, PlayerIndex playerIndex) {
-			this.game = game;
-			this.playerIndex = playerIndex;
 		}
 
 		public void UpdateRepresentation() {
