@@ -10,8 +10,10 @@ namespace Yahtzee.UI {
 		[Space]
 		[SerializeField] private Color normalTextColor = Color.black;
 		[SerializeField] private Color hintTextColor = Color.gray;
+		[SerializeField] private Color lastModifiedHighlightColor = Color.yellow;
 
 		private ScoreItem[] scoreItems;
+		private ScoreItem lastModifiedHighlight;
 
 		public string Name { set => headerText.text = value; }
 		public PlayerState Data { get; set; }
@@ -32,6 +34,14 @@ namespace Yahtzee.UI {
 		}
 
 		public void UpdateRepresentation() {
+			if (lastModifiedHighlight != null)
+				lastModifiedHighlight.background.color = Color.clear;
+
+			if (Data.LastModified != -1) {
+				lastModifiedHighlight = scoreItems[Data.LastModified];
+				lastModifiedHighlight.background.color = lastModifiedHighlightColor;
+			}
+
 			for (int i = 0; i < Data.Scores.Length; i++) {
 				TextMeshProUGUI text = scoreItems[i].text;
 				text.color = normalTextColor;

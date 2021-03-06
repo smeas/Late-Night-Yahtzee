@@ -10,6 +10,9 @@ namespace Yahtzee {
 		[SerializeField]
 		private int scratchedMask;
 
+		[SerializeField]
+		private int lastModified = -1;
+
 		public int[] Scores => scores;
 		public int UpperSum { get; private set; }
 		public int TotalSum { get; private set; }
@@ -18,14 +21,25 @@ namespace Yahtzee {
 
 		// Bit-field with bit indices from `Category`.
 		public int Scratched => scratchedMask;
+		public int LastModified => lastModified;
 
 		public int this[Category category] {
 			get => scores[(int)category];
-			set => scores[(int)category] = value;
+			set {
+				if (scores[(int)category] == value)
+					return;
+
+				scores[(int)category] = value;
+				lastModified = (int)category;
+			}
 		}
 
 		public void Scratch(Category category) {
+			int oldMask = scratchedMask;
 			scratchedMask |= 1 << (int)category;
+
+			if (scratchedMask != oldMask)
+				lastModified = (int)category;
 		}
 
 		public bool HasScratched(Category category) {

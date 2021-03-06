@@ -456,7 +456,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 25.582397, y: 0.46209717}
-  m_SizeDelta: {x: 126.5649, y: 755.4751}
+  m_SizeDelta: {x: 130, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &8203364014325166335
 MonoBehaviour:
@@ -501,6 +501,7 @@ MonoBehaviour:
   totalSumText: {fileID: 7575703985222524846}
   normalTextColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   hintTextColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  lastModifiedHighlightColor: {r: 0.015686275, g: 0.8901961, b: 1, a: 0.14117648}
 --- !u!1001 &621195621266834296
 PrefabInstance:
   m_ObjectHideFlags: 0
