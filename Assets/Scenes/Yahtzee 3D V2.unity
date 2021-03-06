@@ -1176,6 +1176,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1488045981}
     m_Modifications:
+    - target: {fileID: 1339728223331339939, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339728223331339964, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.0005
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339728223331339964, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339728223331339965, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3d0393e300c14ca4db0c74db30ac0c57, type: 2}
     - target: {fileID: 1339728224067805551, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
       propertyPath: m_RootOrder
       value: 5
@@ -1971,6 +1987,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7338612529741273285, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7338612529766559440, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3d0393e300c14ca4db0c74db30ac0c57, type: 2}
+    - target: {fileID: 7338612529766559441, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -2890,6 +2914,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7338612529741273285, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7338612529766559440, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 3d0393e300c14ca4db0c74db30ac0c57, type: 2}
+    - target: {fileID: 7338612529766559441, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
