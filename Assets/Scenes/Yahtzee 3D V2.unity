@@ -2285,7 +2285,7 @@ MonoBehaviour:
   moveBackEase: 6
   lockMoveDuration: 0.2
   lockMoveEase: 6
-  lockMoveOffset: {x: 0, y: 0, z: -0.15}
+  lockMoveOffset: {x: 0, y: 0, z: -0.4}
 --- !u!4 &1994085777
 Transform:
   m_ObjectHideFlags: 0
