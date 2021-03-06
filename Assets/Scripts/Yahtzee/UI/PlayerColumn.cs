@@ -1,13 +1,11 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Yahtzee.UI {
 	public class PlayerColumn : MonoBehaviour {
 		[SerializeField] private TextMeshProUGUI headerText;
 		[SerializeField] private TextMeshProUGUI upperSumText;
 		[SerializeField] private TextMeshProUGUI totalSumText;
-		[SerializeField] private Button[] scoreButtons;
 
 		[Space]
 		[SerializeField] private Color normalTextColor = Color.black;
@@ -15,6 +13,7 @@ namespace Yahtzee.UI {
 
 		private YahtzeeGame game;
 		private PlayerIndex playerIndex;
+		private ScoreItem[] scoreItems;
 
 		public string Name { set => headerText.text = value; }
 		public PlayerState Data { get; set; }
@@ -22,11 +21,11 @@ namespace Yahtzee.UI {
 		public bool ShowHints { get; set; }
 
 		private void Awake() {
-			Debug.Assert(scoreButtons.Length == 16, "scoreButtons.Length == 16");
+			scoreItems = GetComponentsInChildren<ScoreItem>();
+			Debug.Assert(scoreItems.Length == 16, "scoreItems.Length == 16");
 
-			foreach (Button button in scoreButtons) {
-				TextMeshProUGUI text = button.GetComponentInChildren<TextMeshProUGUI>();
-				text.text = "";
+			foreach (ScoreItem item in scoreItems) {
+				item.text.text = "";
 			}
 
 			headerText.text = gameObject.name;
@@ -37,17 +36,13 @@ namespace Yahtzee.UI {
 		public void Initialize(YahtzeeGame game, PlayerIndex playerIndex) {
 			this.game = game;
 			this.playerIndex = playerIndex;
-
-			for (int i = 0; i < scoreButtons.Length; i++) {
-				int index = i;
-				scoreButtons[i].onClick.AddListener(() => game.OnScorePressed(playerIndex, (Category)index));
-			}
 		}
 
 		public void UpdateRepresentation() {
 			for (int i = 0; i < Data.Scores.Length; i++) {
-				TextMeshProUGUI text = scoreButtons[i].GetComponentInChildren<TextMeshProUGUI>();
+				TextMeshProUGUI text = scoreItems[i].text;
 				text.color = normalTextColor;
+				text.fontStyle = FontStyles.Normal;
 
 				if (Data.HasScratched((Category)i)) {
 					text.text = "-";
@@ -59,6 +54,7 @@ namespace Yahtzee.UI {
 					else if (ShowHints) {
 						text.text = CurrentRollScores[i] != 0 ? CurrentRollScores[i].ToString() : "-";
 						text.color = hintTextColor;
+						text.fontStyle = FontStyles.Italic;
 					}
 					else {
 						text.text = "";

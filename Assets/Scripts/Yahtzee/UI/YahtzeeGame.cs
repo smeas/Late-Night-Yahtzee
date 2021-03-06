@@ -10,8 +10,8 @@ namespace Yahtzee.UI {
 		private const int MaxRolls = 3;
 
 		[SerializeField] private TextMeshProUGUI turnText;
-		[SerializeField] private PlayerColumn[] playerColumns;
 		[SerializeField] private DiceUI3D diceUI;
+		[SerializeField] private Sheet sheet;
 		[SerializeField] private SceneReference menuScene;
 
 		private DatabaseReference matchReference;
@@ -35,9 +35,9 @@ namespace Yahtzee.UI {
 		private bool isRolling;
 
 		private async void Start() {
-			Debug.Assert(playerColumns.Length == 2, "playerColumns.Length == 2");
-			playerColumns[0].Initialize(this, PlayerIndex.PlayerOne);
-			playerColumns[1].Initialize(this, PlayerIndex.PlayerTwo);
+			sheet.Initialize(this, 2);
+			sheet.PlayerColumns[0].Initialize(this, PlayerIndex.PlayerOne);
+			sheet.PlayerColumns[1].Initialize(this, PlayerIndex.PlayerTwo);
 			diceUI.Initialize(this, diceSet);
 
 			// Grab match data and DB references
@@ -75,14 +75,14 @@ namespace Yahtzee.UI {
 			playerOneInfo = await FirebaseManager.Instance.GetUserInfo(matchData.player1);
 			playerTwoInfo = await FirebaseManager.Instance.GetUserInfo(matchData.player2);
 
-			playerColumns[0].Name = playerOneInfo.username;
-			playerColumns[1].Name = playerTwoInfo.username;
+			sheet.PlayerColumns[0].Name = playerOneInfo.username;
+			sheet.PlayerColumns[1].Name = playerTwoInfo.username;
 
 			// Update the columns with the data
-			playerColumns[0].Data = matchData.state.playerOne;
-			playerColumns[0].UpdateRepresentation();
-			playerColumns[1].Data = matchData.state.playerTwo;
-			playerColumns[1].UpdateRepresentation();
+			sheet.PlayerColumns[0].Data = matchData.state.playerOne;
+			sheet.PlayerColumns[0].UpdateRepresentation();
+			sheet.PlayerColumns[1].Data = matchData.state.playerTwo;
+			sheet.PlayerColumns[1].UpdateRepresentation();
 
 			turnText.text = currentTurn == PlayerIndex.PlayerOne ? playerOneInfo.username : playerTwoInfo.username;
 
@@ -170,8 +170,8 @@ namespace Yahtzee.UI {
 			otherPlayerState = JsonUtility.FromJson<PlayerState>(otherStateJson);
 			otherPlayerState.UpdateSums();
 
-			playerColumns[(int)otherPlayerIndex].Data = otherPlayerState;
-			playerColumns[(int)otherPlayerIndex].UpdateRepresentation();
+			sheet.PlayerColumns[(int)otherPlayerIndex].Data = otherPlayerState;
+			sheet.PlayerColumns[(int)otherPlayerIndex].UpdateRepresentation();
 		}
 
 		private void OnMatchDeleted(object sender, ChildChangedEventArgs e) {
@@ -184,10 +184,9 @@ namespace Yahtzee.UI {
 				ModalManager.Instance.ShowInfo("Your opponent has forfeited the game!", ExitToMenu);
 		}
 
-		public void OnScorePressed(PlayerIndex playerIndex, Category category) {
-			print($"[Game] {playerIndex} pressed {category}");
+		public void OnCategoryPressed(Category category) {
+			print($"[Game] Pressed {category}");
 
-			if (playerIndex != localPlayerIndex) return;
 			if (currentTurn != localPlayerIndex) return;
 			if (rollCount == 0) return;
 
@@ -221,9 +220,9 @@ namespace Yahtzee.UI {
 			rollCount++;
 
 			// Show available move hints
-			playerColumns[(int)localPlayerIndex].CurrentRollScores = currentDiceScores;
-			playerColumns[(int)localPlayerIndex].ShowHints = true;
-			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
+			sheet.PlayerColumns[(int)localPlayerIndex].CurrentRollScores = currentDiceScores;
+			sheet.PlayerColumns[(int)localPlayerIndex].ShowHints = true;
+			sheet.PlayerColumns[(int)localPlayerIndex].UpdateRepresentation();
 
 			if (rollCount == 1) {
 				// After first roll
@@ -244,14 +243,14 @@ namespace Yahtzee.UI {
 			print($"[Game] Score {category}");
 			localPlayerState[category] = currentDiceScores[(int)category];
 			localPlayerState.UpdateSums();
-			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
+			sheet.PlayerColumns[(int)localPlayerIndex].UpdateRepresentation();
 		}
 
 		private void ScratchCategory(Category category) {
 			print($"[Game] Scratch {category}");
 			localPlayerState.Scratch(category);
 			localPlayerState.UpdateSums();
-			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
+			sheet.PlayerColumns[(int)localPlayerIndex].UpdateRepresentation();
 		}
 
 		private void RollDice() {
@@ -274,8 +273,8 @@ namespace Yahtzee.UI {
 			diceUI.CanRoll = false;
 			diceUI.UpdateRepresentation();
 
-			playerColumns[(int)localPlayerIndex].ShowHints = false;
-			playerColumns[(int)localPlayerIndex].UpdateRepresentation();
+			sheet.PlayerColumns[(int)localPlayerIndex].ShowHints = false;
+			sheet.PlayerColumns[(int)localPlayerIndex].UpdateRepresentation();
 
 			// Set the turn locally first as it is used to determine whether the player can perform actions.
 			currentTurn = otherPlayerIndex;
