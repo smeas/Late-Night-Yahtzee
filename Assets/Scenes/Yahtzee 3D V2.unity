@@ -1140,6 +1140,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Large Candle
       objectReference: {fileID: 0}
+    - target: {fileID: 1339728224126894352, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339728224126894354, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_RenderMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339728224126894354, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_Lightmapping
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339728224126894354, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1339728224126894354, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
       propertyPath: m_BoundingSphereOverride.w
       value: 2.2227419e-38
@@ -1161,8 +1177,16 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1339728225057005799, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_DrawHalo
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339728225057005799, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
       propertyPath: m_Intensity
       value: 1.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 1339728225057005799, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
+      propertyPath: m_RenderMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1339728225057005799, guid: 52b8a35a704b30f47b8df36a01fa9a64, type: 3}
       propertyPath: m_Lightmapping
@@ -1725,6 +1749,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1488045981}
     m_Modifications:
+    - target: {fileID: 69384568, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 69384570, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_RenderMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 69384570, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_Lightmapping
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 69384570, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 69384570, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
       propertyPath: m_BoundingSphereOverride.w
       value: 2.6258e-41
@@ -1746,8 +1786,16 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 961249889, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_DrawHalo
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 961249889, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
       propertyPath: m_Intensity
       value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 961249889, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_RenderMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 961249889, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
       propertyPath: m_Lightmapping
@@ -2650,6 +2698,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1488045981}
     m_Modifications:
+    - target: {fileID: 69384568, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 69384570, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_RenderMode
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 69384570, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_Lightmapping
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 69384570, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_CullingMask.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 69384570, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
       propertyPath: m_BoundingSphereOverride.w
       value: 3.08444e+10
@@ -2671,8 +2735,16 @@ PrefabInstance:
       value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 961249889, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_DrawHalo
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 961249889, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
       propertyPath: m_Intensity
       value: 1.75
+      objectReference: {fileID: 0}
+    - target: {fileID: 961249889, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
+      propertyPath: m_RenderMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 961249889, guid: 3dc376a51db106144b22eb4a955f4acc, type: 3}
       propertyPath: m_Lightmapping
@@ -2828,7 +2900,7 @@ Light:
   serializedVersion: 10
   m_Type: 2
   m_Shape: 0
-  m_Color: {r: 0.64705884, g: 0.9891894, b: 1, a: 1}
+  m_Color: {r: 0.47235298, g: 0.72141176, b: 0.73, a: 1}
   m_Intensity: 1.5
   m_Range: 7.853567
   m_SpotAngle: 30
@@ -2868,7 +2940,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 2
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1

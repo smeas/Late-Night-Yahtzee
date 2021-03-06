@@ -122,7 +122,8 @@ namespace Yahtzee.UI {
 
 			matchReference.ChildRemoved -= OnMatchDeleted;
 
-			ShakeDetector.Instance.Shake -= OnRollPressed;
+			if (ShakeDetector.Instance != null)
+				ShakeDetector.Instance.Shake -= OnRollPressed;
 		}
 
 		private void Update() {
