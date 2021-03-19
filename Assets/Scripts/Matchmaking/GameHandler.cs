@@ -54,8 +54,16 @@ namespace Matchmaking {
 			if (IsGameDeleted)
 				return;
 
-			int playerIndex = int.Parse(e.Snapshot.Key);
-			string playerId = (string)e.Snapshot.Value;
+			if (!int.TryParse(e.Snapshot.Key, out int playerIndex)) {
+				Debug.Assert(false);
+				return;
+			}
+
+			string playerId = e.Snapshot.Value as string;
+			if (playerId == null) {
+				Debug.Assert(false);
+				return;
+			}
 
 			PlayerLeft?.Invoke(playerIndex, playerId);
 		}
@@ -64,7 +72,11 @@ namespace Matchmaking {
 			if (IsGameDeleted)
 				return;
 
-			int playerIndex = int.Parse(e.Snapshot.Key); // TODO: Make safe
+			if (!int.TryParse(e.Snapshot.Key, out int playerIndex)) {
+				Debug.Assert(false);
+				return;
+			}
+
 			PlayerState playerState = e.Snapshot.ToObject<PlayerState>();
 
 			Debug.Assert(playerState != null, "playerState != null");

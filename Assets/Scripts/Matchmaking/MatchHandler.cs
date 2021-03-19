@@ -82,6 +82,8 @@ namespace Matchmaking {
 			bool? value = e.Snapshot.Value as bool?;
 			if (value == true) {
 				GameInfo gameInfo = await MatchmakingManager.GetGame(MatchId);
+				Debug.Assert(gameInfo != null, "gameInfo != null");
+
 				Start?.Invoke(gameInfo);
 			}
 		}
