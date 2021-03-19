@@ -21,12 +21,15 @@ namespace Yahtzee.UI {
 			}
 		}
 
-		public void Initialize(YahtzeeGame game, int numberOfPlayers) {
+		public void Initialize(YahtzeeGame game, int numberOfPlayers, string[] names, PlayerState[] states) {
 			this.game = game;
 
 			PlayerColumns = new PlayerColumn[numberOfPlayers];
 			for (int i = 0; i < numberOfPlayers; i++) {
 				PlayerColumns[i] = Instantiate(playerColumnPrefab, playersRoot);
+				PlayerColumns[i].Name = names[i];
+				PlayerColumns[i].Data = states[i];
+				PlayerColumns[i].UpdateRepresentation();
 			}
 		}
 

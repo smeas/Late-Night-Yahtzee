@@ -1,5 +1,6 @@
 using System;
 using Extensions;
+using Firebase.Database;
 using Yahtzee;
 
 namespace Matchmaking {
@@ -9,5 +10,7 @@ namespace Matchmaking {
 		public string[] players;
 		public PlayerState[] states;
 		public int turn;
+
+		public DatabaseReference Reference => MatchmakingManager.GamesReference.Child(id);
 	}
 }

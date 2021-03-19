@@ -42,7 +42,7 @@ namespace UI.Matchmaking {
 
 		private void MatchesOnChildAdded(object sender, ChildChangedEventArgs e) {
 			MatchInfo matchInfo = e.Snapshot.ToObjectWithId<MatchInfo>();
-
+			Debug.Assert(matchInfo != null);
 			Debug.Assert(matchInfo.players.Length == matchInfo.playerCount, "players.Length == playerCount");
 			Debug.Assert(matchInfo.playerCount > 0, "playerCount > 0");
 			Debug.Assert(matchInfo.playerCount <= MatchmakingManager.MaxPlayers, "playerCount <= MaxPlayers");
