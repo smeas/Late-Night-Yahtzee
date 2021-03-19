@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 
 namespace UI.Matchmaking {
+	// TODO: Display player count.
 	public class MatchListItem : MonoBehaviour {
 		[SerializeField] private TextMeshProUGUI idText;
 		[SerializeField] private TextMeshProUGUI hostText;

@@ -1,18 +1,18 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Extensions;
 using Firebase.Database;
 using Matchmaking;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace UI.Matchmaking {
 	public class MatchmakingMenu : MonoBehaviour {
 		[SerializeField] private MatchListItem matchListItemPrefab;
 		[SerializeField] private Transform matchListRoot;
-		[SerializeField] private SceneReference gameScene;
+		[SerializeField] private LobbyMenu lobbyMenu;
 
 		private readonly List<MatchListItem> matchListItems = new List<MatchListItem>();
-		private Query matchesQuery;
-		private bool isJoiningMatch;
+		private DatabaseReference matchesReference;
 
 		private async void OnEnable() {
 			await FirebaseManager.Instance.WaitForInitialization();
@@ -24,59 +24,40 @@ namespace UI.Matchmaking {
 			foreach (Transform item in matchListRoot)
 				Destroy(item.gameObject);
 
-			matchesQuery = MatchmakingManager.OpenMatchesQuery;
-			matchesQuery.ChildAdded += MatchesQueryOnChildAdded;
-			matchesQuery.ChildRemoved += MatchesQueryOnChildRemoved;
+			// TODO: Use query to order by creation time.
+			matchesReference = MatchmakingManager.MatchesReference;
+			matchesReference.ChildAdded += MatchesOnChildAdded;
+			matchesReference.ChildRemoved += MatchesOnChildRemoved;
 		}
 
 		private void OnDisable() {
-			matchesQuery.ChildAdded -= MatchesQueryOnChildAdded;
-			matchesQuery.ChildRemoved -= MatchesQueryOnChildRemoved;
+			matchesReference.ChildAdded -= MatchesOnChildAdded;
+			matchesReference.ChildRemoved -= MatchesOnChildRemoved;
 		}
 
-		public async void JoinMatch(string id) {
-			if (isJoiningMatch)
-				return;
-
-			isJoiningMatch = true;
-
-			MatchData matchData = await MatchmakingManager.TryJoinMatch(id);
-			if (matchData != null) {
-				Debug.Log($"[MM] Successfully joined match: {id}.");
-
-				SceneManager.LoadScene(gameScene);
-			}
-			else {
-				Debug.Log($"[MM] Failed to join match: {id}.");
-			}
-
-			isJoiningMatch = false;
+		public void JoinMatch(string id) {
+			lobbyMenu.Show();
+			lobbyMenu.JoinMatch(id);
 		}
 
-		private void MatchesQueryOnChildAdded(object sender, ChildChangedEventArgs e) {
-			MatchData matchData = MatchmakingManager.SnapshotToMatchData(e.Snapshot);
-			if (matchData.player1 == FirebaseManager.Instance.UserId)
-				return;
+		private void MatchesOnChildAdded(object sender, ChildChangedEventArgs e) {
+			MatchInfo matchInfo = e.Snapshot.ToObjectWithId<MatchInfo>();
 
-			AddMatch(matchData);
+			Debug.Assert(matchInfo.players.Length == matchInfo.playerCount, "players.Length == playerCount");
+			Debug.Assert(matchInfo.playerCount > 0, "playerCount > 0");
+			Debug.Assert(matchInfo.playerCount <= MatchmakingManager.MaxPlayers, "playerCount <= MaxPlayers");
+
+			AddMatch(matchInfo);
 		}
 
-		private void MatchesQueryOnChildRemoved(object sender, ChildChangedEventArgs e) {
+		private void MatchesOnChildRemoved(object sender, ChildChangedEventArgs e) {
 			RemoveMatch(e.Snapshot.Key);
 		}
 
-		private async void AddMatch(MatchData match) {
+		private async void AddMatch(MatchInfo match) {
 			MatchListItem item = Instantiate(matchListItemPrefab, matchListRoot);
 
-			DataSnapshot usernameSnapshot = await FirebaseManager.Instance.RootReference
-				.Child("users/" + match.player1)
-				.Child(nameof(UserInfo.username))
-				.GetValueAsync();
-
-			string hostUsername = (string)usernameSnapshot?.GetValue(false);
-			if (string.IsNullOrEmpty(hostUsername))
-				hostUsername = match.player1;
-
+			string hostUsername = await GetHostUsername(match);
 			item.Initialize(this, match.id, hostUsername);
 
 			matchListItems.Add(item);
@@ -89,6 +70,17 @@ namespace UI.Matchmaking {
 
 			Destroy(matchListItems[itemIndex].gameObject);
 			matchListItems.RemoveAt(itemIndex);
+		}
+
+		private static async Task<string> GetHostUsername(MatchInfo match) {
+			if (match.players.Length == 0) // should never happen
+				return "";
+
+			string hostUsername = await FirebaseManager.Instance.GetUsername(match.players[0]);
+			if (string.IsNullOrEmpty(hostUsername)) // if username is blank, use id
+				hostUsername = match.players[0];
+
+			return hostUsername;
 		}
 	}
 }

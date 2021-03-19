@@ -1,8 +1,10 @@
 using System;
 using System.Threading.Tasks;
+using Extensions;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
+using JetBrains.Annotations;
 using UnityEngine;
 
 [DefaultExecutionOrder(-10)]
@@ -107,11 +109,21 @@ public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
 		UsernameChanged?.Invoke(username);
 	}
 
+	[ItemCanBeNull]
 	public async Task<UserInfo> GetUserInfo(string userId) {
 		DataSnapshot snap = await RootReference.Child("users").Child(userId).GetValueAsync();
-		UserInfo userInfo = JsonUtility.FromJson<UserInfo>(snap.GetRawJsonValue());
-		userInfo.id = snap.Key;
-		return userInfo;
+		return snap.ToObjectWithId<UserInfo>();
+	}
+
+	[ItemCanBeNull]
+	public async Task<string> GetUsername(string userId) {
+		DataSnapshot snap = await RootReference
+			.Child("users")
+			.Child(userId)
+			.Child(nameof(UserInfo.username))
+			.GetValueAsync();
+
+		return snap.Value as string;
 	}
 
 	private async Task FetchUserInfo() {

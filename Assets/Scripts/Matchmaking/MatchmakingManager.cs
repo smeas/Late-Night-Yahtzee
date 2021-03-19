@@ -1,119 +1,137 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
+using Extensions;
 using Firebase.Database;
 using UnityEngine;
+using Utilities;
 using Yahtzee;
 
 namespace Matchmaking {
 	public static class MatchmakingManager {
+		public const int MaxPlayers = 4;
 		private const int MaxQueryMatches = 10;
 
+		public static DatabaseReference MatchesReference { get; } =
+			FirebaseManager.Instance.RootReference.Child("matches");
 
-		public static DatabaseReference GamesReference => FirebaseManager.Instance.RootReference.Child("games");
+		public static DatabaseReference GamesReference { get; } =
+			FirebaseManager.Instance.RootReference.Child("games");
 
-		public static Query OpenMatchesQuery => GamesReference
-			//.OrderByChild("created") // Sort the matches oldest first
-			.OrderByChild("active").EqualTo(false)
-			.LimitToFirst(MaxQueryMatches);
-
-		public static MatchData CurrentMatch { get; set; }
+		/// <summary>
+		/// The active game. Shared across the menu and game scenes.
+		/// </summary>
+		public static GameInfo ActiveGame { get; set; }
 
 
-		public static async Task<MatchData> CreateMatch() {
-			MatchData matchData = new MatchData {
-				player1 = FirebaseManager.Instance.UserId,
-				player2 = null,
-				active = false,
+		public static async Task<MatchInfo> CreateMatch() {
+			// Create a unique id for the new match
+			DatabaseReference matchReference = MatchesReference.Push();
+
+			MatchInfo matchInfo = new MatchInfo {
+				id = matchReference.Key,
 				CreatedTime = DateTimeOffset.UtcNow,
-				state = new GameState {
-					turn = 0,
-					playerOne = new PlayerState(),
-					playerTwo = new PlayerState(),
-				}
+				isStarting = false,
+				started = false,
+				playerCount = 1,
+				players = new[] {FirebaseManager.Instance.UserId},
 			};
 
-			DatabaseReference matchReference = GamesReference.Push();
-			matchData.id = matchReference.Key;
-			await matchReference.SetRawJsonValueAsync(JsonUtility.ToJson(matchData));
-
-			Debug.Log($"[MM] Created match with id: {matchData.id}");
-			CurrentMatch = matchData;
-
-			return matchData;
+			await matchReference.SetValueFromObjectAsJson(matchInfo);
+			Debug.Log($"[MM] Created match with id: {matchInfo.id}");
+			return matchInfo;
 		}
 
-		public static async void DeleteMatch(string id) {
-			if (CurrentMatch != null && CurrentMatch.id == id)
-				CurrentMatch = null;
-
-			await GamesReference.Child(id).RemoveValueAsync();
-		}
-
-		/// <returns>Match data if successful, null otherwise.</returns>
-		public static async Task<MatchData> TryJoinMatch(string matchId) {
-			DatabaseReference matchReference = GamesReference.Child(matchId);
-			DataSnapshot dataSnapshot;
+		public static async Task<MatchInfo> TryJoinMatch(string id) {
+			DatabaseReference matchReference = MatchesReference.Child(id);
+			DataSnapshot snap;
 
 			try {
-				// Run a transaction to avoid a potential race condition.
-				dataSnapshot = await matchReference.RunTransaction(data => {
-					if (!data.HasChildren)
+				snap = await matchReference.RunTransaction(data => {
+					if (!data.HasChildren) // Cheaper way of checking for null data
 						return TransactionResult.Success(data);
 
-					if ((bool)data.Child(nameof(MatchData.active)).Value) {
-						// Someone else already joined.
+					// Check if we can join
+					int playerCount = (int)(long)data.Child(nameof(MatchInfo.playerCount)).Value;
+					bool isStarting = (bool)data.Child(nameof(MatchInfo.isStarting)).Value;
+					if (playerCount >= MaxPlayers || isStarting)
 						return TransactionResult.Abort();
-					}
 
-					// Write the data.
-					data.Child(nameof(MatchData.player2)).Value = FirebaseManager.Instance.UserId;
-					data.Child(nameof(MatchData.active)).Value = true;
+					// Add our user id to the player list and update the player count
+					data.Child($"{nameof(MatchInfo.players)}/{playerCount}").Value = FirebaseManager.Instance.UserId;
+					data.Child(nameof(MatchInfo.playerCount)).Value = playerCount + 1;
 
 					return TransactionResult.Success(data);
 				});
 			}
 			catch (DatabaseException) {
-				 // Transaction was aborted.
-				 return null;
-			}
-
-			Debug.Assert(dataSnapshot != null, "dataSnapshot != null");
-
-			if (!dataSnapshot.Exists) {
-				// Match does not exist or was deleted.
+				// Transaction was aborted, failed to join
 				return null;
 			}
 
-			MatchData matchData = SnapshotToMatchData(dataSnapshot);
+			if (snap == null || !snap.HasChildren)
+				return null;
 
-			Debug.Assert(matchData.active && matchData.player2 == FirebaseManager.Instance.UserId);
-
-			CurrentMatch = matchData;
-			return matchData;
+			MatchInfo matchInfo = snap.ToObjectWithId<MatchInfo>();
+			Debug.Log($"[MM] Joined match with id: {id}");
+			return matchInfo;
 		}
 
-		public static async Task<MatchData> GetMatch(string id) {
+		public static async Task<GameInfo> StartMatch(string id) {
+			DatabaseReference matchReference = MatchesReference.Child(id);
+			MatchInfo match = await GetMatch(id);
+
+			if (match == null) {
+				Debug.LogWarning("[MM] Match not found.");
+				return null; // Match not found
+			}
+
+			if (match.playerCount < 2) {
+				Debug.LogWarning("[MM] Not enough players to start match.");
+				return null; // Not enough players to start
+			}
+
+			if (match.isStarting || match.started) {
+				Debug.LogWarning("[MM] Match already started/starting.");
+				return null; // Already started/starting
+			}
+
+			// Prevent new players from joining
+			await matchReference.Child(nameof(MatchInfo.isStarting)).SetValueAsync(true);
+
+			// Fetch the match again in case anything has changed
+			match = await GetMatch(id);
+
+			// TODO: Check player count again. It could have change since the last fetch.
+			// FIXME(RC): What happens if a player leaves after this point but before the game actually starts? The player
+			// leaving would go unhandled and the player would still be considered as part of the game.
+
+			// Construct a new game using the same id as the match
+			DatabaseReference gameReference = GamesReference.Child(id);
+			GameInfo gameInfo = new GameInfo {
+				id = id,
+				players = match.players,
+				playerCount = match.playerCount,
+				states = Util.CreateInitializedArray<PlayerState>(match.playerCount),
+				turn = 0,
+			};
+
+			await gameReference.SetValueFromObjectAsJson(gameInfo);
+
+			// Notify players that the game has been created and is starting and remove the match
+			await matchReference.Child(nameof(MatchInfo.started)).SetValueAsync(true);
+			await matchReference.RemoveValueAsync();
+
+			return gameInfo;
+		}
+
+		public static async Task<MatchInfo> GetMatch(string id) {
+			DataSnapshot snapshot = await MatchesReference.Child(id).GetValueAsync();
+			return snapshot.ToObjectWithId<MatchInfo>();
+		}
+
+		public static async Task<GameInfo> GetGame(string id) {
 			DataSnapshot snapshot = await GamesReference.Child(id).GetValueAsync();
-
-			MatchData matchData = JsonUtility.FromJson<MatchData>(snapshot.GetRawJsonValue());
-			matchData.id = snapshot.Key;
-
-			return matchData;
-		}
-
-		public static async Task<MatchData[]> GetOpenMatches() {
-			DataSnapshot dataSnapshot = await OpenMatchesQuery.GetValueAsync();
-
-			MatchData[] matches = dataSnapshot.Children.Select(SnapshotToMatchData).ToArray();
-
-			return matches;
-		}
-
-		public static MatchData SnapshotToMatchData(DataSnapshot snap) {
-			MatchData matchData = JsonUtility.FromJson<MatchData>(snap.GetRawJsonValue());
-			matchData.id = snap.Key;
-			return matchData;
+			return snapshot.ToObjectWithId<GameInfo>();
 		}
 	}
 }

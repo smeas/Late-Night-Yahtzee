@@ -1,8 +1,7 @@
 using System;
+using Extensions;
 
 [Serializable]
-public class UserInfo {
-	[NonSerialized]
-	public string id;
+public class UserInfo : DataWithId {
 	public string username;
 }
