@@ -1,7 +1,7 @@
 using UnityEngine;
 
 namespace Other {
-	public class KeepScreenOn : MonoBehaviour {
+	public class KeepScreenOn : SingletonBehaviour<KeepScreenOn> {
 		private void OnEnable() {
 			Screen.sleepTimeout = SleepTimeout.NeverSleep;
 		}
