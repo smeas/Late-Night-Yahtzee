@@ -86,6 +86,17 @@ namespace Yahtzee.UI {
 			gameHandler?.Disable();
 		}
 
+		private void Update() {
+			// Allow exiting to menu
+			if (!ModalManager.Instance.IsShowing && Input.GetKeyDown(KeyCode.Escape)) {
+				ModalManager.Instance.ShowYesNo("Are you sure you want to exit?", ok => {
+					if (ok) {
+						ExitToMenu();
+					}
+				});
+			}
+		}
+
 		private async Task FetchUsernames() {
 			playerNames = new string[playerIds.Length];
 
@@ -104,109 +115,6 @@ namespace Yahtzee.UI {
 
 			gameHandler.Enable();
 		}
-
-		// private async void Start() {
-		// 	sheet.Initialize(this, 2);
-		// 	diceUI.Initialize(this, diceSet);
-		//
-		// 	// Grab match data and DB references
-		// 	matchInfo = MatchmakingManager.CurrentMatch;
-		// 	matchReference = MatchmakingManager.GamesReference.Child(matchInfo.id);
-		// 	matchStateReference = matchReference.Child(nameof(matchInfo.state));
-		//
-		// 	Debug.Assert(matchInfo.player1 != matchInfo.player2, "matchData.player1 != matchData.player2");
-		//
-		// 	// Setup player indices
-		// 	if (matchInfo.player1 == FirebaseManager.Instance.UserId) {
-		// 		localPlayerIndex = PlayerIndex.PlayerOne;
-		// 		otherPlayerIndex = PlayerIndex.PlayerTwo;
-		// 	}
-		// 	else if (matchInfo.player2 == FirebaseManager.Instance.UserId) {
-		// 		localPlayerIndex = PlayerIndex.PlayerTwo;
-		// 		otherPlayerIndex = PlayerIndex.PlayerOne;
-		// 	}
-		// 	else {
-		// 		Debug.Assert(false, "Current user is part of the match");
-		// 	}
-		//
-		// 	// Grab the current state
-		// 	currentTurn = matchInfo.state.turn;
-		// 	if (localPlayerIndex == PlayerIndex.PlayerOne) {
-		// 		localPlayerState = matchInfo.state.playerOne;
-		// 		otherPlayerState = matchInfo.state.playerTwo;
-		// 	}
-		// 	else {
-		// 		localPlayerState = matchInfo.state.playerTwo;
-		// 		otherPlayerState = matchInfo.state.playerOne;
-		// 	}
-		//
-		// 	// Get user infos
-		// 	playerOneInfo = await FirebaseManager.Instance.GetUserInfo(matchInfo.player1);
-		// 	playerTwoInfo = await FirebaseManager.Instance.GetUserInfo(matchInfo.player2);
-		//
-		// 	sheet.PlayerColumns[0].Name = playerOneInfo.username;
-		// 	sheet.PlayerColumns[1].Name = playerTwoInfo.username;
-		//
-		// 	// Update the columns with the data
-		// 	sheet.PlayerColumns[0].Data = matchInfo.state.playerOne;
-		// 	sheet.PlayerColumns[0].UpdateRepresentation();
-		// 	sheet.PlayerColumns[1].Data = matchInfo.state.playerTwo;
-		// 	sheet.PlayerColumns[1].UpdateRepresentation();
-		//
-		// 	turnText.text = currentTurn == PlayerIndex.PlayerOne ? playerOneInfo.username : playerTwoInfo.username;
-		//
-		// 	diceUI.BlankDice = true;
-		// 	diceUI.CanLock = false;
-		// 	diceUI.CanRoll = localPlayerIndex == PlayerIndex.PlayerOne;
-		// 	diceUI.RollCompleted += OnRollCompleted;
-		//
-		// 	ShakeDetector.Instance.Shake += OnRollPressed;
-		//
-		// 	SetupSync();
-		// }
-
-		// private void SetupSync() {
-		// 	if (localPlayerIndex == PlayerIndex.PlayerTwo) {
-		// 		// TODO: Maybe do something cleaner to signal this event?
-		// 		matchReference.OnDisconnect().RemoveValue();
-		// 	}
-		//
-		// 	matchStateReference.Child(nameof(matchInfo.state.turn)).ValueChanged += OnTurnChanged;
-		//
-		// 	// Listen to changes in the other player's state
-		// 	matchStateReference
-		// 		.Child(localPlayerIndex == PlayerIndex.PlayerOne
-		// 			       ? nameof(matchInfo.state.playerTwo)
-		// 			       : nameof(matchInfo.state.playerOne)).ValueChanged += OnOtherPlayerStateChanged;
-		//
-		// 	// We never remove individual child nodes from the match data. So if a child gets removed, it means that the
-		// 	// whole match is getting removed. This usually means that the opponent quit the game.
-		// 	matchReference.ChildRemoved += OnMatchDeleted;
-		// }
-		//
-		// private void OnDisable() {
-		// 	matchStateReference.Child(nameof(matchInfo.state.turn)).ValueChanged -= OnTurnChanged;
-		// 	matchStateReference
-		// 		.Child(localPlayerIndex == PlayerIndex.PlayerOne
-		// 			       ? nameof(matchInfo.state.playerTwo)
-		// 			       : nameof(matchInfo.state.playerOne)).ValueChanged -= OnOtherPlayerStateChanged;
-		//
-		// 	matchReference.ChildRemoved -= OnMatchDeleted;
-		//
-		// 	if (ShakeDetector.Instance != null)
-		// 		ShakeDetector.Instance.Shake -= OnRollPressed;
-		// }
-		//
-		// private void Update() {
-		// 	// Allow exiting to menu
-		// 	if (!ModalManager.Instance.IsShowing && Input.GetKeyDown(KeyCode.Escape)) {
-		// 		ModalManager.Instance.ShowYesNo("Are you sure you want to exit?", ok => {
-		// 			if (ok) {
-		// 				ExitToMenu();
-		// 			}
-		// 		});
-		// 	}
-		// }
 
 
 		#region Event handlers
