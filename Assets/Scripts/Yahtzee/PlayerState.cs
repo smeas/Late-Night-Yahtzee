@@ -19,7 +19,9 @@ namespace Yahtzee {
 		public bool HasGottenBonus { get; private set; }
 		public bool IsFinished { get; private set; }
 
-		// Bit-field with bit indices from `Category`.
+		/// <summary>
+		/// Bit-field with bit indices from <see cref="Category"/>.
+		/// </summary>
 		public int Scratched => scratchedMask;
 		public int LastModified => lastModified;
 
@@ -30,7 +32,10 @@ namespace Yahtzee {
 					return;
 
 				scores[(int)category] = value;
-				lastModified = (int)category;
+
+				// If we get the bonus, we want to highlight the move that got it, not the bonus itself
+				if (category != Category.Bonus)
+					lastModified = (int)category;
 			}
 		}
 
