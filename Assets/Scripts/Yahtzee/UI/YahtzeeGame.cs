@@ -79,6 +79,10 @@ namespace Yahtzee.UI {
 			ShakeDetector.Instance.Shake += OnRollPressed;
 
 			SetupGameHandler();
+
+			// If the host disconnects, the game gets deleted
+			if (myPlayerIndex == 0)
+				await gameReference.OnDisconnect().RemoveValue();
 		}
 
 		private void OnDisable() {
@@ -89,7 +93,7 @@ namespace Yahtzee.UI {
 		private void Update() {
 			// Allow exiting to menu
 			if (!ModalManager.Instance.IsShowing && Input.GetKeyDown(KeyCode.Escape)) {
-				ModalManager.Instance.ShowYesNo("Are you sure you want to exit?", ok => {
+				ModalManager.Instance.ShowYesNo("Are you sure you want to exit? This will forfeit the game.", ok => {
 					if (ok) {
 						ExitToMenu();
 					}
@@ -106,7 +110,7 @@ namespace Yahtzee.UI {
 		}
 
 		private void SetupGameHandler() {
-			gameHandler = new GameHandler(gameInfo.id);
+			gameHandler = new GameHandler(gameInfo.id, myPlayerIndex);
 
 			gameHandler.TurnChanged += OnTurnChanged;
 			gameHandler.PlayerStateChanged += OnPlayerStateChanged;
@@ -154,14 +158,17 @@ namespace Yahtzee.UI {
 			print("[Game] The game has been deleted!");
 
 			if (!gameOver)
-				ModalManager.Instance.ShowInfo("yYour opponent(s) have forfeited the game!", ExitToMenu);
+				ModalManager.Instance.ShowInfo("Your opponent(s) have forfeited the game!", ExitToMenu);
 		}
 
 		private void OnPlayerLeft(int playerIndex, string playerId) {
-			// TODO: Let all but two players leave without stopping the game.
+			if (gameOver) return;
+
+			// TODO: Let all but two players leave without ending the game.
 			print($"[Game] Player {playerIndex} '{playerNames[playerIndex]}' left");
 
-			ExitToMenu();
+			gameOver = true;
+			ModalManager.Instance.ShowInfo("Your opponent(s) have forfeited the game!", ExitToMenu);
 		}
 
 		public void OnCategoryPressed(Category category) {
@@ -298,7 +305,8 @@ namespace Yahtzee.UI {
 			if (!gameDeleted) {
 				// TODO: Maybe do something cleaner to signal this event?
 				gameDeleted = true;
-				await gameReference.RemoveValueAsync();
+				if (gameReference != null)
+					await gameReference.RemoveValueAsync();
 			}
 
 			SceneManager.LoadScene(menuScene);

@@ -18,20 +18,25 @@ namespace Matchmaking {
 		private readonly DatabaseReference playersReference;
 		private readonly DatabaseReference statesReference;
 		private readonly DatabaseReference turnReference;
+		private readonly DatabaseReference localPlayerReference;
 
 		private bool enabled;
 
-		public GameHandler(string id) {
+		public GameHandler(string id, int playerId) {
 			GameId = id;
 			Reference = MatchmakingManager.GamesReference.Child(id);
 			playersReference = Reference.Child(nameof(GameInfo.players));
 			statesReference = Reference.Child(nameof(GameInfo.states));
 			turnReference = Reference.Child(nameof(GameInfo.turn));
+			localPlayerReference = Reference.Child(nameof(GameInfo.players)).Child(playerId.ToString());
 		}
 
 		public void Enable() {
 			if (enabled) return;
 			enabled = true;
+
+			// Remove the player from the game on disconnect.
+			_ = localPlayerReference.OnDisconnect().RemoveValue();
 
 			playersReference.ChildRemoved += OnPlayerRemoved;
 			statesReference.ChildChanged += OnPlayerStateChanged;
@@ -43,6 +48,8 @@ namespace Matchmaking {
 		public void Disable() {
 			if (!enabled) return;
 			enabled = false;
+
+			_ = localPlayerReference.OnDisconnect().Cancel();
 
 			playersReference.ChildRemoved -= OnPlayerRemoved;
 			statesReference.ChildChanged -= OnPlayerStateChanged;
@@ -90,7 +97,7 @@ namespace Matchmaking {
 
 			long? turn = e.Snapshot.Value as long?;
 			if (turn == null) {
-				Debug.Assert(false);
+				Debug.Assert(false, "turn was null. Is Firebase being spooky?");
 				return;
 			}
 
