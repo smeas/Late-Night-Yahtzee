@@ -6,6 +6,8 @@ High priority
 Low priority
 - [DB] Tighten database rules
 - [DB/F] Order matches by creation time
+- [UX] Show number of player in a match in the matches menu
+- [UX] Tweak disabled button color
 - [UX] Display creation time on matches
 - [UX] Make things look nice
 - [UX] Allow tab to jump between input fields
@@ -14,3 +16,4 @@ Low priority
 
 Ideas
 - [UX] Confirmation for some moves
+- [F] Local play
