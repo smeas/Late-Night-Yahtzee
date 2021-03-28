@@ -1,0 +1,29 @@
+=== Database layout ===
+
+users:
+	$id: UserInfo
+		username: string
+
+matches:
+	$id: MatchInfo
+		created: long
+		isStarting: bool
+		started: bool
+		playerCount: int
+		players: PlayerId[]
+
+games:
+	$id: GameInfo
+		playerCount: int
+		turn: int
+		players: PlayerId[]
+		states: PlayerState[]
+
+
+=== Quirks & behaviour ===
+
+:: NEED TO UNSUB FROM SAME DB REFERENCE ::
+:: TRANSACTIONS INVOKE VALUE CHANGED EVENT ONCE ::
+:: DATA IS RETURNED AS "ARRAYS" IF THE KEYS LOOK LIKE ARRAY INDICES ::
+:: ARRAYS ARE RETURNED AS List<object> ::
+:: INTEGERS ARE RETURNED AS long ::
