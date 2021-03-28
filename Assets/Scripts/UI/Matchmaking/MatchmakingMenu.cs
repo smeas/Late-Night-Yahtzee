@@ -28,11 +28,22 @@ namespace UI.Matchmaking {
 			matchesReference = MatchmakingManager.MatchesReference;
 			matchesReference.ChildAdded += MatchesOnChildAdded;
 			matchesReference.ChildRemoved += MatchesOnChildRemoved;
+			matchesReference.ChildChanged += MatchesOnChildChanged;
 		}
 
 		private void OnDisable() {
 			matchesReference.ChildAdded -= MatchesOnChildAdded;
 			matchesReference.ChildRemoved -= MatchesOnChildRemoved;
+			matchesReference.ChildChanged -= MatchesOnChildChanged;
+		}
+
+		private void Update() {
+			// Update every 5th second. This only works properly if we have a framerate > 1 fps
+			if ((long)Time.unscaledTimeAsDouble % 5 == 0) {
+				foreach (MatchListItem item in matchListItems) {
+					item.UpdateLiveElements();
+				}
+			}
 		}
 
 		public void JoinMatch(string id) {
@@ -54,11 +65,26 @@ namespace UI.Matchmaking {
 			RemoveMatch(e.Snapshot.Key);
 		}
 
+		private void MatchesOnChildChanged(object sender, ChildChangedEventArgs e) {
+			string id = e.Snapshot.Key;
+			int index = matchListItems.FindIndex(item => item.Id == id);
+			if (index == -1)
+				return;
+
+			MatchInfo matchInfo = e.Snapshot.ToObjectWithId<MatchInfo>();
+			if (matchInfo == null) {
+				Debug.Assert(false);
+				return;
+			}
+
+			matchListItems[index].UpdateMatch(matchInfo);
+		}
+
 		private async void AddMatch(MatchInfo match) {
 			MatchListItem item = Instantiate(matchListItemPrefab, matchListRoot);
 
 			string hostUsername = await GetHostUsername(match);
-			item.Initialize(this, match.id, hostUsername);
+			item.Initialize(this, match, hostUsername);
 
 			matchListItems.Add(item);
 		}
