@@ -1,6 +1,7 @@
 using System;
 using Firebase;
 using Firebase.Auth;
+using Managers;
 using TMPro;
 using UI.Modal;
 using UnityEngine;

@@ -6,136 +6,139 @@ using Firebase.Auth;
 using Firebase.Database;
 using JetBrains.Annotations;
 using UnityEngine;
+using Utilities;
 
-[DefaultExecutionOrder(-10)]
-public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
-	public FirebaseAuth Auth { get; private set; }
-	public FirebaseDatabase Database { get; private set; }
+namespace Managers {
+	[DefaultExecutionOrder(-10)]
+	public class FirebaseManager : SingletonBehaviour<FirebaseManager> {
+		public FirebaseAuth Auth { get; private set; }
+		public FirebaseDatabase Database { get; private set; }
 
-	public DatabaseReference RootReference => Database.RootReference;
-	public DatabaseReference UserReference => Database.RootReference.Child("users/" + User.UserId);
+		public DatabaseReference RootReference => Database.RootReference;
+		public DatabaseReference UserReference => Database.RootReference.Child("users/" + User.UserId);
 
-	public string UserId => User.UserId;
-	public FirebaseUser User => Auth.CurrentUser;
-	public UserInfo UserInfo { get; private set; }
+		public string UserId => User.UserId;
+		public FirebaseUser User => Auth.CurrentUser;
+		public UserInfo UserInfo { get; private set; }
 
-	public bool IsSignedIn => User != null;
-	public bool Initialized { get; private set; }
+		public bool IsSignedIn => User != null;
+		public bool Initialized { get; private set; }
 
-	private Task initTask;
-
-
-	public event Action<string> UsernameChanged;
+		private Task initTask;
 
 
-	protected override void Awake() {
-		base.Awake();
-		if (Instance != this)
-			return;
+		public event Action<string> UsernameChanged;
 
-		DontDestroyOnLoad(this);
 
-		initTask = Initialize();
-	}
+		protected override void Awake() {
+			base.Awake();
+			if (Instance != this)
+				return;
 
-	private async Task Initialize() {
-		await FirebaseApp.CheckAndFixDependenciesAsync();
-		Debug.Log("[FB] Firebase initialized");
+			DontDestroyOnLoad(this);
 
-		Database = FirebaseDatabase.DefaultInstance;
-		Auth = FirebaseAuth.DefaultInstance;
+			initTask = Initialize();
+		}
 
-		// Fetch existing user info
-		if (IsSignedIn) {
+		private async Task Initialize() {
+			await FirebaseApp.CheckAndFixDependenciesAsync();
+			Debug.Log("[FB] Firebase initialized");
+
+			Database = FirebaseDatabase.DefaultInstance;
+			Auth = FirebaseAuth.DefaultInstance;
+
+			// Fetch existing user info
+			if (IsSignedIn) {
+				await FetchUserInfo();
+				UsernameChanged?.Invoke(UserInfo.username);
+			}
+
+			Initialized = true;
+			initTask = null;
+		}
+
+		public async Task WaitForInitialization() {
+			if (!Initialized)
+				await initTask;
+		}
+
+		#region Auth
+
+		public async Task RegisterUser(string email, string password) {
+			if (!Initialized)
+				await initTask;
+
+			await Auth.CreateUserWithEmailAndPasswordAsync(email, password);
+
+			UserInfo = new UserInfo {id = UserId};
+			await PushUserInfo();
+			UsernameChanged?.Invoke(null);
+		}
+
+		public async Task SignInUser(string email, string password) {
+			if (!Initialized)
+				await initTask;
+
+			await Auth.SignInWithEmailAndPasswordAsync(email, password);
+
 			await FetchUserInfo();
 			UsernameChanged?.Invoke(UserInfo.username);
 		}
 
-		Initialized = true;
-		initTask = null;
-	}
+		public async Task SignInAnonymously() {
+			if (!Initialized)
+				await initTask;
 
-	public async Task WaitForInitialization() {
-		if (!Initialized)
-			await initTask;
-	}
+			await Auth.SignInAnonymouslyAsync();
 
-	#region Auth
+			UserInfo = new UserInfo {id = UserId};
+			await PushUserInfo();
+			UsernameChanged?.Invoke(null);
+		}
 
-	public async Task RegisterUser(string email, string password) {
-		if (!Initialized)
-			await initTask;
+		public void SignOut() {
+			Auth.SignOut();
 
-		await Auth.CreateUserWithEmailAndPasswordAsync(email, password);
+			UserInfo = null;
+			UsernameChanged?.Invoke(null);
+		}
 
-		UserInfo = new UserInfo {id = UserId};
-		await PushUserInfo();
-		UsernameChanged?.Invoke(null);
-	}
+		#endregion
 
-	public async Task SignInUser(string email, string password) {
-		if (!Initialized)
-			await initTask;
+		public async Task UpdateUsername(string username) {
+			username = username.Trim();
+			await UserReference.Child(nameof(UserInfo.username)).SetValueAsync(username);
+			UserInfo.username = username;
 
-		await Auth.SignInWithEmailAndPasswordAsync(email, password);
+			UsernameChanged?.Invoke(username);
+		}
 
-		await FetchUserInfo();
-		UsernameChanged?.Invoke(UserInfo.username);
-	}
+		[ItemCanBeNull]
+		public async Task<UserInfo> GetUserInfo(string userId) {
+			DataSnapshot snap = await RootReference.Child("users").Child(userId).GetValueAsync();
+			return snap.ToObjectWithId<UserInfo>();
+		}
 
-	public async Task SignInAnonymously() {
-		if (!Initialized)
-			await initTask;
+		[ItemCanBeNull]
+		public async Task<string> GetUsername(string userId) {
+			DataSnapshot snap = await RootReference
+				.Child("users")
+				.Child(userId)
+				.Child(nameof(UserInfo.username))
+				.GetValueAsync();
 
-		await Auth.SignInAnonymouslyAsync();
+			return snap.Value as string;
+		}
 
-		UserInfo = new UserInfo {id = UserId};
-		await PushUserInfo();
-		UsernameChanged?.Invoke(null);
-	}
+		private async Task FetchUserInfo() {
+			DataSnapshot snap = await UserReference.GetValueAsync();
+			UserInfo = JsonUtility.FromJson<UserInfo>(snap.GetRawJsonValue() ?? "{}");
+			UserInfo.id = snap.Key;
+		}
 
-	public void SignOut() {
-		Auth.SignOut();
-
-		UserInfo = null;
-		UsernameChanged?.Invoke(null);
-	}
-
-	#endregion
-
-	public async Task UpdateUsername(string username) {
-		username = username.Trim();
-		await UserReference.Child(nameof(UserInfo.username)).SetValueAsync(username);
-		UserInfo.username = username;
-
-		UsernameChanged?.Invoke(username);
-	}
-
-	[ItemCanBeNull]
-	public async Task<UserInfo> GetUserInfo(string userId) {
-		DataSnapshot snap = await RootReference.Child("users").Child(userId).GetValueAsync();
-		return snap.ToObjectWithId<UserInfo>();
-	}
-
-	[ItemCanBeNull]
-	public async Task<string> GetUsername(string userId) {
-		DataSnapshot snap = await RootReference
-			.Child("users")
-			.Child(userId)
-			.Child(nameof(UserInfo.username))
-			.GetValueAsync();
-
-		return snap.Value as string;
-	}
-
-	private async Task FetchUserInfo() {
-		DataSnapshot snap = await UserReference.GetValueAsync();
-		UserInfo = JsonUtility.FromJson<UserInfo>(snap.GetRawJsonValue() ?? "{}");
-		UserInfo.id = snap.Key;
-	}
-
-	private async Task PushUserInfo() {
-		string userInfoJson = JsonUtility.ToJson(UserInfo);
-		await UserReference.SetRawJsonValueAsync(userInfoJson);
+		private async Task PushUserInfo() {
+			string userInfoJson = JsonUtility.ToJson(UserInfo);
+			await UserReference.SetRawJsonValueAsync(userInfoJson);
+		}
 	}
 }

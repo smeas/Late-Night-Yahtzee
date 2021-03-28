@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Utilities;
 
 namespace UI.Modal {
 	[RequireComponent(typeof(Canvas))]

@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Extensions;
 using Firebase.Database;
+using Managers;
 using UnityEngine;
 using Utilities;
 using Yahtzee;
@@ -9,7 +10,6 @@ using Yahtzee;
 namespace Matchmaking {
 	public static class MatchmakingManager {
 		public const int MaxPlayers = 4;
-		private const int MaxQueryMatches = 10;
 
 		public static DatabaseReference MatchesReference { get; } =
 			FirebaseManager.Instance.RootReference.Child("matches");

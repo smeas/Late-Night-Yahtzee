@@ -1,4 +1,5 @@
 using UnityEngine;
+using Utilities;
 
 namespace Other {
 	public class KeepScreenOn : SingletonBehaviour<KeepScreenOn> {

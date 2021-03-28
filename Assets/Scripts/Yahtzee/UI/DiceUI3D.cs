@@ -28,7 +28,6 @@ namespace Yahtzee.UI {
 		[SerializeField] private Ease lockMoveEase = Ease.OutQuad;
 		[SerializeField] private Vector3 lockMoveOffset;
 
-		private YahtzeeGame game;
 		private DiceSet diceSet;
 		private bool canLock = true;
 		private bool canRoll = true;
@@ -68,7 +67,6 @@ namespace Yahtzee.UI {
 		}
 
 		public void Initialize(YahtzeeGame game, DiceSet diceSet) {
-			this.game = game;
 			this.diceSet = diceSet;
 
 			Debug.Assert(dice.Length == diceSet.Dice.Length);

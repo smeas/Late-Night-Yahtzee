@@ -5,7 +5,7 @@ using UnityEngine;
 namespace UI {
 	public class MenuManager : MonoBehaviour {
 		[SerializeField] private bool activateFirstMenuOnLoad = true;
-		[SerializeField] private bool allowPoppingLastMenu = false;
+		[SerializeField] private bool allowPoppingLastMenu;
 		[SerializeField] private GameObject[] menus;
 
 		private readonly Stack<int> stack = new Stack<int>();

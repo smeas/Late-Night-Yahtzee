@@ -5,12 +5,6 @@ public class SwitchCamera : MonoBehaviour {
 	[SerializeField] private CinemachineVirtualCamera camera1;
 	[SerializeField] private CinemachineVirtualCamera camera2;
 
-	private CinemachineBrain brain;
-
-	private void Start() {
-		brain = GetComponent<CinemachineBrain>();
-	}
-
 	private void Update() {
 		if (Input.GetKeyDown(KeyCode.Alpha1)) {
 			camera1.enabled = true;
