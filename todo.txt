@@ -1,15 +1,13 @@
 High priority
-- [UX] Notify user when its their turn
-- Audio
-- Shake to roll hint/tip
+- Notify user when its their turn
+- Add more sound effects
+- Show hint that you can shake the device to roll the dice
 
 Low priority
-- [DB] Tighten database rules
+- [DB] See if its possible to make database rules more strict
 - [DB/F] Order matches by creation time
-- [UX] Make things look nice
-- [UX] Allow tab to jump between input fields
-- [UX] Allow enter in input fields to confirm
-- [UX] Add juice
+- [UX] Allow tab key to jump between input fields
+- [UX] Allow enter key in input fields to confirm
 
 Ideas
 - [UX] Confirmation for some moves
