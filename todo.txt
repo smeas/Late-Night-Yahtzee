@@ -2,6 +2,8 @@ High priority
 - Notify user when its their turn
 - Add more sound effects
 - Show hint that you can shake the device to roll the dice
+- Show other players dice when its their turn
+- BUG: Chance scratched "All players finished on game over"
 
 Low priority
 - [DB] See if its possible to make database rules more strict
