@@ -6,7 +6,6 @@ High priority
 Low priority
 - [DB] Tighten database rules
 - [DB/F] Order matches by creation time
-- [UX] Tweak disabled button color
 - [UX] Make things look nice
 - [UX] Allow tab to jump between input fields
 - [UX] Allow enter in input fields to confirm
