@@ -92,6 +92,10 @@ namespace UI.Matchmaking {
 					await matchHandler.Reference.RemoveValueAsync();
 			}
 
+			if (match != null) {
+				await MatchmakingManager.LeaveMatch(match.id);
+			}
+
 			// Cleanup is handled by OnDisable
 			menuManager.PopMenu();
 
@@ -122,6 +126,7 @@ namespace UI.Matchmaking {
 
 			matchHandler.PlayerJoined += MatchHandlerOnPlayerJoined;
 			matchHandler.PlayerLeft += MatchHandlerOnPlayerLeft;
+			matchHandler.PlayerChanged += MatchHandlerOnPlayerChanged;
 			matchHandler.Start += MatchHandlerOnStart;
 			matchHandler.MatchDeleted += MatchHandlerOnMatchDeleted;
 
@@ -157,6 +162,15 @@ namespace UI.Matchmaking {
 			playerListItems.RemoveAt(index);
 
 			OnPlayerCountChanged();
+		}
+
+		private void MatchHandlerOnPlayerChanged(int playerIndex, UserInfo playerInfo) {
+			if (playerIndex >= playerListItems.Count) {
+				Debug.Assert(false);
+				return;
+			}
+
+			playerListItems[playerIndex].Initialize(playerInfo);
 		}
 
 		#endregion

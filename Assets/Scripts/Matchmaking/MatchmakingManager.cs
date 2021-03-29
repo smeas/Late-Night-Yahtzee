@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Extensions;
 using Firebase.Database;
@@ -77,6 +78,42 @@ namespace Matchmaking {
 			MatchInfo matchInfo = snap.ToObjectWithId<MatchInfo>();
 			Debug.Log($"[MM] Joined match with id: {id}");
 			return matchInfo;
+		}
+
+		public static async Task LeaveMatch(string matchId) {
+			DatabaseReference matchReference = MatchesReference.Child(matchId);
+			string playerId = FirebaseManager.Instance.UserId;
+
+			try {
+				// We have to do it as a transaction as we are potentially modifying multiple entries of the 'players' array
+				await matchReference.RunTransaction(data => {
+					if (!data.HasChildren) // Cheaper way of checking for null data
+						return TransactionResult.Success(data);
+
+					// Get the list of players and find our player index
+					List<object> players = (List<object>)data.Child(nameof(MatchInfo.players)).Value;
+					int playerIndex = players.FindIndex(x => x != null && x.Equals(playerId));
+
+					if (playerIndex == -1) // Player was not in the match
+						return TransactionResult.Abort();
+
+					// Remove the player and write the list back
+					players.RemoveAt(playerIndex);
+					data.Child(nameof(MatchInfo.players)).Value = players;
+
+					// Decrement player count
+					int playerCount = (int)(long)data.Child(nameof(MatchInfo.playerCount)).Value;
+					playerCount--;
+					data.Child(nameof(MatchInfo.playerCount)).Value = playerCount;
+
+					Debug.Assert(playerCount == players.Count, "playerCount == players.Count");
+
+					return TransactionResult.Success(data);
+				});
+			}
+			catch (DatabaseException) {
+				// Transaction aborted
+			}
 		}
 
 		public static async Task<GameInfo> StartMatch(string id) {

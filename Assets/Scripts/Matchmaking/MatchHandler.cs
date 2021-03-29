@@ -12,6 +12,7 @@ namespace Matchmaking {
 		public event Action<GameInfo> Start;
 		public event Action<UserInfo> PlayerJoined;
 		public event Action<string> PlayerLeft;
+		public event Action<int, UserInfo> PlayerChanged;
 		public event Action MatchDeleted;
 
 		private readonly DatabaseReference playersReference;
@@ -32,6 +33,7 @@ namespace Matchmaking {
 
 			playersReference.ChildAdded += OnPlayerAdded;
 			playersReference.ChildRemoved += OnPlayerRemoved;
+			playersReference.ChildChanged += OnPlayerChanged;
 			startedReference.ValueChanged += OnStartedChanged;
 			// The only time children of this node (MatchInfo) gets removed is if the whole match is removed.
 			Reference.ChildRemoved += OnMatchDeleted;
@@ -43,11 +45,15 @@ namespace Matchmaking {
 
 			playersReference.ChildAdded -= OnPlayerAdded;
 			playersReference.ChildRemoved -= OnPlayerRemoved;
+			playersReference.ChildChanged -= OnPlayerChanged;
 			startedReference.ValueChanged -= OnStartedChanged;
 			Reference.ChildRemoved -= OnMatchDeleted;
 		}
 
 		private async void OnPlayerAdded(object sender, ChildChangedEventArgs e) {
+			if (IsMatchDeleted)
+				return;
+
 			string id = e.Snapshot.Value as string;
 			if (id == null) {
 				Debug.Assert(false);
@@ -74,6 +80,28 @@ namespace Matchmaking {
 			}
 
 			PlayerLeft?.Invoke(id);
+		}
+
+		private async void OnPlayerChanged(object sender, ChildChangedEventArgs e) {
+			if (IsMatchDeleted)
+				return;
+
+			string id = e.Snapshot.Value as string;
+			if (id == null) {
+				Debug.Assert(false);
+				return;
+			}
+
+			if (!int.TryParse(e.Snapshot.Key, out int playerIndex)) {
+				Debug.Assert(false);
+				return;
+			}
+
+			UserInfo userInfo = await FirebaseManager.Instance.GetUserInfo(id);
+			if (userInfo == null)
+				Debug.Assert(false);
+
+			PlayerChanged?.Invoke(playerIndex, userInfo);
 		}
 
 		private async void OnStartedChanged(object sender, ValueChangedEventArgs e) {
