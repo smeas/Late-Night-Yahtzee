@@ -26,8 +26,10 @@ namespace UI.Matchmaking {
 		private MatchHandler matchHandler;
 		private MatchInfo match;
 		private bool isGoingBack;
+		private bool isStarting;
 
 		private void OnEnable() {
+			isStarting = false;
 			startMatchButton.interactable = false;
 			matchIdText.text = "";
 
@@ -104,6 +106,7 @@ namespace UI.Matchmaking {
 
 		public async void StartMatch() {
 			if (match == null) return;
+			isStarting = true;
 
 			matchHandler.Disable();
 			GameInfo gameInfo = await MatchmakingManager.StartMatch(match.id);
@@ -112,6 +115,7 @@ namespace UI.Matchmaking {
 
 		private void EnterGame(GameInfo gameInfo) {
 			Debug.Log("[Lobby] Game starting");
+			isStarting = true;
 
 			MatchmakingManager.ActiveGame = gameInfo;
 			SceneManager.LoadScene(gameScene);
@@ -141,7 +145,8 @@ namespace UI.Matchmaking {
 		}
 
 		private void MatchHandlerOnMatchDeleted() {
-			Back();
+			if (!isStarting)
+				Back();
 		}
 
 		private void MatchHandlerOnPlayerJoined(UserInfo playerInfo) {
