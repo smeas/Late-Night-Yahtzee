@@ -164,7 +164,7 @@ namespace Yahtzee.UI {
 		}
 
 		private void OnPlayerLeft(int playerIndex, string playerId) {
-			if (gameOver) return;
+			if (gameDeleted || gameOver) return;
 
 			// TODO: Let all but two players leave without ending the game.
 			print($"[Game] Player {playerIndex} '{playerNames[playerIndex]}' left");
