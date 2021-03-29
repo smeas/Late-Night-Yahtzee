@@ -174,8 +174,6 @@ namespace Yahtzee.UI {
 		}
 
 		public void OnCategoryPressed(Category category) {
-			print($"[Game] Pressed {category}");
-
 			if (!IsMyTurn) return;
 			if (rollCount == 0) return;
 
