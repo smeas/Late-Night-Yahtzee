@@ -141,7 +141,6 @@ namespace Yahtzee.UI {
 		}
 
 		private void EndRoll() {
-			print("Rolled: " + string.Join(", ", dice.Select(x => x.CurrentValue)));
 			isRolling = false;
 
 			if (!CanRoll) return;

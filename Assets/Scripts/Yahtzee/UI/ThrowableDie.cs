@@ -27,8 +27,6 @@ namespace Yahtzee.UI {
 		private void OnMouseDown() {
 			if (DiceUI != null)
 				DiceUI.OnDiePressed(this);
-
-			print($"click: {this}");
 		}
 
 		private void OnCollisionEnter(Collision other) {
