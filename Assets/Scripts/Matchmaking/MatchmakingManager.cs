@@ -44,6 +44,7 @@ namespace Matchmaking {
 		public static async Task<MatchInfo> TryJoinMatch(string id) {
 			DatabaseReference matchReference = MatchesReference.Child(id);
 			DataSnapshot snap;
+			bool aborted = false;
 
 			try {
 				snap = await matchReference.RunTransaction(data => {
@@ -53,8 +54,10 @@ namespace Matchmaking {
 					// Check if we can join
 					int playerCount = (int)(long)data.Child(nameof(MatchInfo.playerCount)).Value;
 					bool isStarting = (bool)data.Child(nameof(MatchInfo.isStarting)).Value;
-					if (playerCount >= MaxPlayers || isStarting)
+					if (playerCount >= MaxPlayers || isStarting) {
+						aborted = true;
 						return TransactionResult.Abort();
+					}
 
 					// Add our user id to the player list and update the player count
 					data.Child($"{nameof(MatchInfo.players)}/{playerCount}").Value = FirebaseManager.Instance.UserId;
@@ -68,7 +71,7 @@ namespace Matchmaking {
 				return null;
 			}
 
-			if (snap == null || !snap.HasChildren)
+			if (aborted || snap == null || !snap.HasChildren)
 				return null;
 
 			MatchInfo matchInfo = snap.ToObjectWithId<MatchInfo>();

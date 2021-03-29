@@ -38,7 +38,7 @@ namespace UI.Matchmaking {
 		}
 
 		private void OnDisable() {
-			matchHandler.Disable();
+			matchHandler?.Disable();
 			ownsMatch = false;
 			matchHandler = null;
 			match = null;
@@ -84,11 +84,13 @@ namespace UI.Matchmaking {
 			if (isGoingBack) return;
 			isGoingBack = true;
 
-			matchHandler.Disable();
+			if (matchHandler != null) {
+				matchHandler.Disable();
 
-			// Delete the match if we are the host
-			if (ownsMatch)
-				await matchHandler.Reference.RemoveValueAsync();
+				// Delete the match if we are the host
+				if (ownsMatch)
+					await matchHandler.Reference.RemoveValueAsync();
+			}
 
 			// Cleanup is handled by OnDisable
 			menuManager.PopMenu();
