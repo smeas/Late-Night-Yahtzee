@@ -5,13 +5,13 @@ namespace Other {
 		[SerializeField] private float flickerAmount = 10;
 		[SerializeField] private float flickerSpeed = 10;
 
-		private new Light light;
+		private Light lamp;
 		private float intensity;
 		private float timer;
 
 		private void Start() {
-			light = GetComponent<Light>();
-			intensity = light.intensity;
+			lamp = GetComponent<Light>();
+			intensity = lamp.intensity;
 		}
 
 		private void Update() {
@@ -21,7 +21,7 @@ namespace Other {
 			timer += Time.deltaTime;
 			if (timer >= speed) {
 				timer -= speed;
-				light.intensity = Mathf.Max(0, Random.Range(intensity - amount, intensity + amount));
+				lamp.intensity = Mathf.Max(0, Random.Range(intensity - amount, intensity + amount));
 			}
 		}
 	}
